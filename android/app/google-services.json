@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "894315456900",
+    "project_id": "cement-delivery-tracker-72de2",
+    "storage_bucket": "cement-delivery-tracker-72de2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:894315456900:android:6f094cb36fedb474ff15d1",
+        "android_client_info": {
+          "package_name": "com.example.cementdeliverytracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXQgospteSYc7YFMXGrnZ8tn5QZo060pU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
