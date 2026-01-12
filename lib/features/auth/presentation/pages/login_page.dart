@@ -3,6 +3,7 @@ import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,9 +35,31 @@ class _LoginPageState extends State<LoginPage> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'No user found for that email.';
+          break;
+        case 'wrong-password':
+          message = 'Incorrect password. Please try again.';
+          break;
+        case 'network-request-failed':
+          message = 'Network error. Please check your connection.';
+          break;
+        default:
+          message = 'Login failed. Please try again later.';
+      }
+      if (mounted) {
+        AppUtils.showSnackBar(context, message, isError: true);
+      }
     } catch (e) {
       if (mounted) {
-        AppUtils.showSnackBar(context, e.toString(), isError: true);
+        AppUtils.showSnackBar(
+          context,
+          'Login failed. Please try again later.',
+          isError: true,
+        );
       }
     } finally {
       if (mounted) {

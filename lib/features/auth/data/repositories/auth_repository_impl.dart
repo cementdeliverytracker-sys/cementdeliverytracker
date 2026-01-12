@@ -4,6 +4,8 @@ import 'package:cementdeliverytracker/features/auth/data/datasources/auth_remote
 import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
 import 'package:cementdeliverytracker/features/auth/domain/repositories/auth_repository.dart';
 import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -23,6 +25,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final result = await remoteDataSource.login(params);
       return Right(result);
+    } on FirebaseAuthException catch (e) {
+      rethrow; // Let the UI handle this
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
@@ -48,6 +52,21 @@ class AuthRepositoryImpl implements AuthRepository {
       await remoteDataSource.logout();
       return const Right(null);
     } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword(
+    ChangePasswordParams params,
+  ) async {
+    try {
+      await remoteDataSource.changePassword(params);
+      return const Right(null);
+    } catch (e) {
+      if (e is Failure) {
+        return Left(e);
+      }
       return Left(ServerFailure(e.toString()));
     }
   }

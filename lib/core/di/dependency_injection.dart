@@ -46,6 +46,7 @@ class DependencyInjection {
     final logoutUseCase = LogoutUseCase(authRepository);
     final getAuthStateUseCase = GetAuthStateUseCase(authRepository);
     final getCurrentUserUseCase = GetCurrentUserUseCase(authRepository);
+    final changePasswordUseCase = ChangePasswordUseCase(authRepository);
 
     // Auth Provider
     final authNotifier = AuthNotifier(
@@ -54,6 +55,7 @@ class DependencyInjection {
       logoutUseCase: logoutUseCase,
       getAuthStateUseCase: getAuthStateUseCase,
       getCurrentUserUseCase: getCurrentUserUseCase,
+      changePasswordUseCase: changePasswordUseCase,
     );
 
     // Dashboard Data Source

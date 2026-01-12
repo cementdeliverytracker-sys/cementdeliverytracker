@@ -11,11 +11,11 @@ class SplashPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 200,
-              margin: const EdgeInsets.only(bottom: 30),
-              child: Image.asset('assets/images/cementdeliverytracker.png'),
-            ),
+            // Container(
+            //   width: 200,
+            //   margin: const EdgeInsets.only(bottom: 30),
+            //   child: Image.asset('assets/images/cementdeliverytracker.png'),
+            // ),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6F00)),
             ),

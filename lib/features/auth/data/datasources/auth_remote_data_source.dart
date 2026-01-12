@@ -6,11 +6,13 @@ import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entitie
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUser> login(LoginParams params);
   Future<AuthUser> signup(SignupParams params);
   Future<void> logout();
+  Future<void> changePassword(ChangePasswordParams params);
   Stream<AuthUser?> get authStateChanges;
   AuthUser? get currentUser;
 }
@@ -33,14 +35,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: params.email,
         password: params.password,
       );
-
       return AuthUser(
         id: userCredential.user!.uid,
         email: userCredential.user!.email!,
         displayName: userCredential.user!.displayName,
       );
     } on FirebaseAuthException catch (e) {
-      throw _mapFirebaseAuthExceptionToFailure(e);
+      rethrow; // Let the UI handle this
     } catch (e) {
       throw ServerFailure('Login failed: ${e.toString()}');
     }
@@ -101,6 +102,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<void> changePassword(ChangePasswordParams params) async {
+    try {
+      final user = firebaseAuth.currentUser;
+
+      // Check if user is signed in
+      if (user == null) {
+        throw AuthFailure('No user is currently signed in.');
+      }
+
+      // Re-authenticate user before changing password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: params.currentPassword,
+      );
+
+      try {
+        await user.reauthenticateWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'wrong-password') {
+          throw AuthFailure('The current password is incorrect.');
+        } else if (e.code == 'user-mismatch') {
+          throw AuthFailure('The credential does not match the current user.');
+        }
+        throw _mapFirebaseAuthExceptionToFailure(e);
+      }
+
+      // Update password
+      await user.updatePassword(params.newPassword);
+    } on AuthFailure {
+      rethrow;
+    } on FirebaseAuthException catch (e) {
+      throw _mapFirebaseAuthExceptionToFailure(e);
+    } catch (e) {
+      throw ServerFailure('Failed to change password: ${e.toString()}');
+    }
+  }
+
+  @override
   Stream<AuthUser?> get authStateChanges {
     return firebaseAuth.authStateChanges().map((user) {
       if (user == null) return null;
@@ -137,6 +176,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return AuthFailure('The email address is not valid.');
       case 'user-disabled':
         return AuthFailure('This user account has been disabled.');
+      case 'requires-recent-login':
+        return AuthFailure(
+          'Please sign in again before changing your password.',
+        );
       default:
         return AuthFailure('Authentication failed: ${e.message}');
     }

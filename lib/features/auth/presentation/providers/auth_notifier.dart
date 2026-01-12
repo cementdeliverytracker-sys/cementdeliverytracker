@@ -1,7 +1,9 @@
 import 'package:cementdeliverytracker/core/errors/failures.dart';
 import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
 import 'package:cementdeliverytracker/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 enum AuthState { initial, loading, authenticated, unauthenticated, error }
 
@@ -11,6 +13,7 @@ class AuthNotifier extends ChangeNotifier {
   final LogoutUseCase logoutUseCase;
   final GetAuthStateUseCase getAuthStateUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
+  final ChangePasswordUseCase changePasswordUseCase;
 
   AuthState _state = AuthState.initial;
   AuthUser? _user;
@@ -22,6 +25,7 @@ class AuthNotifier extends ChangeNotifier {
     required this.logoutUseCase,
     required this.getAuthStateUseCase,
     required this.getCurrentUserUseCase,
+    required this.changePasswordUseCase,
   }) {
     _initializeAuthState();
   }
@@ -55,13 +59,49 @@ class AuthNotifier extends ChangeNotifier {
     final params = LoginParams(email: email, password: password);
     final result = await loginUseCase(params);
 
-    result.fold(
-      (failure) {
+    await result.fold(
+      (failure) async {
         _state = AuthState.error;
         _errorMessage = _mapFailureToMessage(failure);
         notifyListeners();
+        // Propagate FirebaseAuthException for UI error handling
+        if (failure is AuthFailure) {
+          final msg = failure.message.toLowerCase();
+          if (msg.contains('no user') || msg.contains('not found')) {
+            throw FirebaseAuthException(
+              code: 'user-not-found',
+              message: failure.message,
+            );
+          } else if (msg.contains('wrong password') ||
+              msg.contains('incorrect password')) {
+            throw FirebaseAuthException(
+              code: 'wrong-password',
+              message: failure.message,
+            );
+          } else if (msg.contains('network')) {
+            throw FirebaseAuthException(
+              code: 'network-request-failed',
+              message: failure.message,
+            );
+          } else {
+            throw FirebaseAuthException(
+              code: 'unknown',
+              message: failure.message,
+            );
+          }
+        } else if (failure is NetworkFailure) {
+          throw FirebaseAuthException(
+            code: 'network-request-failed',
+            message: failure.message,
+          );
+        } else {
+          throw FirebaseAuthException(
+            code: 'unknown',
+            message: failure.message,
+          );
+        }
       },
-      (user) {
+      (user) async {
         _user = user;
         _state = AuthState.authenticated;
         _errorMessage = null;
@@ -120,6 +160,34 @@ class AuthNotifier extends ChangeNotifier {
       (_) {
         _user = null;
         _state = AuthState.unauthenticated;
+        _errorMessage = null;
+        notifyListeners();
+      },
+    );
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    _state = AuthState.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    final params = ChangePasswordParams(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+    final result = await changePasswordUseCase(params);
+
+    result.fold(
+      (failure) {
+        _state = AuthState.error;
+        _errorMessage = _mapFailureToMessage(failure);
+        notifyListeners();
+      },
+      (_) {
+        _state = AuthState.authenticated;
         _errorMessage = null;
         notifyListeners();
       },

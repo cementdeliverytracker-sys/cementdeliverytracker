@@ -1,6 +1,7 @@
 import 'package:cementdeliverytracker/core/errors/failures.dart';
 import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
 import 'package:cementdeliverytracker/features/auth/domain/repositories/auth_repository.dart';
+import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
 import 'package:dartz/dartz.dart';
 
 class LoginUseCase {
@@ -50,5 +51,15 @@ class GetCurrentUserUseCase {
 
   AuthUser? call() {
     return repository.currentUser;
+  }
+}
+
+class ChangePasswordUseCase {
+  final AuthRepository repository;
+
+  ChangePasswordUseCase(this.repository);
+
+  Future<Either<Failure, void>> call(ChangePasswordParams params) {
+    return repository.changePassword(params);
   }
 }
