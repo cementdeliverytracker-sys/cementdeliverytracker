@@ -40,7 +40,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: userCredential.user!.email!,
         displayName: userCredential.user!.displayName,
       );
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow; // Let the UI handle this
     } catch (e) {
       throw ServerFailure('Login failed: ${e.toString()}');

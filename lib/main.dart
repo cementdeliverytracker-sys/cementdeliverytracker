@@ -4,6 +4,7 @@ import 'package:cementdeliverytracker/core/theme/app_theme.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/login_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/signup_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/splash_page.dart';
+import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin_dashboard_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/employee_dashboard_page.dart';
@@ -35,74 +36,136 @@ class App extends StatelessWidget {
         routes: {
           AppConstants.routeLogin: (context) => const LoginPage(),
           AppConstants.routeSignup: (context) => const SignupPage(),
+          AppConstants.routePendingApproval: (context) =>
+              const PendingApprovalPage(),
+          AppConstants.routeSuperAdminDashboard: (context) =>
+              const SuperAdminDashboardPage(),
+          AppConstants.routeAdminDashboard: (context) =>
+              const AdminDashboardPage(),
+          AppConstants.routeEmployeeDashboard: (context) =>
+              const EmployeeDashboardPage(),
         },
-        home: Consumer<AuthNotifier>(
-          builder: (context, authNotifier, child) {
-            return StreamBuilder(
-              stream: authNotifier.authStateChanges,
-              builder: (ctx, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SplashPage();
-                }
+        home: const AuthGate(),
+      ),
+    );
+  }
+}
 
-                if (snapshot.hasData && snapshot.data != null) {
-                  final user = snapshot.data!;
-                  return FutureBuilder(
-                    future: _getUserDashboard(user.id),
-                    builder: (ctx, userSnapshot) {
-                      if (userSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const SplashPage();
-                      }
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
 
-                      if (userSnapshot.hasError) {
-                        return const LoginPage();
-                      }
+  @override
+  Widget build(BuildContext context) {
+    final authNotifier = context.read<AuthNotifier>();
 
-                      final userData = userSnapshot.data;
-                      if (userData == null) {
-                        return const LoginPage();
-                      }
+    return StreamBuilder<AuthUser?>(
+      stream: authNotifier.authStateChanges,
+      builder: (ctx, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SplashPage();
+        }
 
-                      final userType =
-                          userData['userType'] ?? AppConstants.userTypePending;
+        final user = snapshot.data;
+        if (user == null) {
+          return const LoginPage();
+        }
 
-                      switch (userType) {
-                        case AppConstants.userTypeSuperAdmin:
-                          return const SuperAdminDashboardPage();
-                        case AppConstants.userTypeAdmin:
-                          return const AdminDashboardPage();
-                        case AppConstants.userTypeEmployee:
-                          return const EmployeeDashboardPage();
-                        default:
-                          return const PendingApprovalPage();
-                      }
-                    },
-                  );
-                }
+        return FutureBuilder<Map<String, dynamic>?>(
+          future: _getUserData(user.id),
+          builder: (ctx, userSnapshot) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
+              return const SplashPage();
+            }
 
-                return const LoginPage();
-              },
-            );
+            final userData = userSnapshot.data;
+            if (userData == null) {
+              return const _MissingProfilePage();
+            }
+
+            final userType =
+                userData['userType'] ?? AppConstants.userTypePending;
+            switch (userType) {
+              case AppConstants.userTypeSuperAdmin:
+                return const SuperAdminDashboardPage();
+              case AppConstants.userTypeAdmin:
+                return const AdminDashboardPage();
+              case AppConstants.userTypeEmployee:
+                return const EmployeeDashboardPage();
+              default:
+                return const PendingApprovalPage();
+            }
           },
+        );
+      },
+    );
+  }
+}
+
+class _MissingProfilePage extends StatelessWidget {
+  const _MissingProfilePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1C1C1C),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.defaultPadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Your account profile could not be loaded.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Please try again, or contact an administrator.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(
+                        context,
+                      ).pushReplacementNamed(AppConstants.routeLogin);
+                    },
+                    child: const Text('Back to login'),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthNotifier>().logout();
+                    },
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Future<Map<String, dynamic>?> _getUserDashboard(String userId) async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .get();
+Future<Map<String, dynamic>?> _getUserData(String userId) async {
+  try {
+    final doc = await FirebaseFirestore.instance
+        .collection(AppConstants.usersCollection)
+        .doc(userId)
+        .get();
 
-      if (doc.exists) {
-        return doc.data();
-      }
-      return null;
-    } catch (e) {
-      return null;
+    if (doc.exists) {
+      return doc.data();
     }
+    return null;
+  } catch (_) {
+    return null;
   }
 }

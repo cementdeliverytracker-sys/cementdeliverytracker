@@ -25,7 +25,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final result = await remoteDataSource.login(params);
       return Right(result);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow; // Let the UI handle this
     } catch (e) {
       return Left(ServerFailure(e.toString()));

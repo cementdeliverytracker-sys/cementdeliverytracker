@@ -1,9 +1,9 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,10 +31,21 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await context.read<AuthNotifier>().login(
+      final authNotifier = context.read<AuthNotifier>();
+      await authNotifier.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
+
+      final isAuthenticated =
+          FirebaseAuth.instance.currentUser != null ||
+          authNotifier.state == AuthState.authenticated;
+      if (!isAuthenticated) {
+        throw StateError('Login did not authenticate');
+      }
+      // AuthGate (in main.dart) will automatically swap to the right dashboard
+      // when auth state changes. Keep the loader visible until this page is
+      // replaced by the new root.
     } on FirebaseAuthException catch (e) {
       String message;
       switch (e.code) {
@@ -50,21 +61,17 @@ class _LoginPageState extends State<LoginPage> {
         default:
           message = 'Login failed. Please try again later.';
       }
-      if (mounted) {
-        AppUtils.showSnackBar(context, message, isError: true);
-      }
+      if (!mounted) return;
+      AppUtils.showSnackBar(context, message, isError: true);
+      setState(() => _isLoading = false);
     } catch (e) {
-      if (mounted) {
-        AppUtils.showSnackBar(
-          context,
-          'Login failed. Please try again later.',
-          isError: true,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (!mounted) return;
+      AppUtils.showSnackBar(
+        context,
+        'Login failed. Please try again later.',
+        isError: true,
+      );
+      setState(() => _isLoading = false);
     }
   }
 
@@ -72,70 +79,90 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C1C),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 30),
-                width: 200,
-                child: Image.asset('assets/images/cementdeliverytracker.png'),
-              ),
-              Card(
-                margin: const EdgeInsets.all(AppConstants.defaultPadding),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppConstants.defaultPadding),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email Address',
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          autocorrect: false,
-                          textCapitalization: TextCapitalization.none,
-                          validator: AppUtils.validateEmail,
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                          ),
-                          obscureText: true,
-                          validator: AppUtils.validatePassword,
-                        ),
-                        const SizedBox(height: 12),
-                        if (_isLoading)
-                          const CircularProgressIndicator()
-                        else
-                          ElevatedButton(
-                            onPressed: _handleLogin,
-                            child: const Text('Login'),
-                          ),
-                        if (!_isLoading)
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(
-                                context,
-                              ).pushReplacementNamed(AppConstants.routeSignup);
-                            },
-                            child: const Text('Create new account'),
-                          ),
-                      ],
+      body: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppConstants.defaultPadding),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 30),
+                    width: 200,
+                    child: Image.asset(
+                      'assets/images/cementdeliverytracker.png',
                     ),
+                  ),
+                  Card(
+                    margin: const EdgeInsets.all(AppConstants.defaultPadding),
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        AppConstants.defaultPadding,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                labelText: 'Email Address',
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              autocorrect: false,
+                              textCapitalization: TextCapitalization.none,
+                              validator: AppUtils.validateEmail,
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _passwordController,
+                              decoration: const InputDecoration(
+                                labelText: 'Password',
+                              ),
+                              obscureText: true,
+                              validator: AppUtils.validatePassword,
+                            ),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              onPressed: _isLoading ? null : _handleLogin,
+                              child: const Text('Login'),
+                            ),
+                            TextButton(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () {
+                                      setState(() => _isLoading = true);
+                                      Navigator.of(
+                                        context,
+                                      ).pushReplacementNamed(
+                                        AppConstants.routeSignup,
+                                      );
+                                    },
+                              child: const Text('Create new account'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isLoading)
+            Positioned.fill(
+              child: ColoredBox(
+                color: const Color(0xFF1C1C1C),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: const Color(0xFFFF6F00),
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+        ],
       ),
     );
   }
