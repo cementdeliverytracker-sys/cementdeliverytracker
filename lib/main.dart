@@ -11,6 +11,7 @@ import 'package:cementdeliverytracker/features/dashboard/presentation/pages/empl
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/pending_approval_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/super_admin_dashboard_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cementdeliverytracker/firebase_options.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,13 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize Firebase App Check
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
+
   runApp(const App());
 }
 
