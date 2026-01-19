@@ -1,7 +1,5 @@
-import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -30,14 +28,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width > 600;
-    final userData = Provider.of<DashboardProvider>(
-      context,
-      listen: false,
-    ).userData;
-    final userType = userData?.userType ?? 'admin';
-    final String title = userType == 'super_admin'
-        ? 'Super Admin Dashboard'
-        : 'Admin Dashboard';
 
     return Theme(
       data: ThemeData.dark().copyWith(
@@ -50,7 +40,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(title),
+          title: const Text('Admin Dashboard'),
           actions: _selectedIndex == 4
               ? null
               : [
