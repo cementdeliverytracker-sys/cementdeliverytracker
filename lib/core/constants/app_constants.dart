@@ -5,6 +5,7 @@ class AppConstants {
 
   // Firebase Collections
   static const String usersCollection = 'users';
+  static const String enterprisesCollection = 'enterprises';
 
   // User Types
   static const String userTypePending = 'pending';
@@ -23,6 +24,7 @@ class AppConstants {
 
   // Storage
   static const String userImagesPath = 'user_images';
+  static const String enterpriseLogosPath = 'enterprise_logos';
 
   // UI Constants
   static const double defaultPadding = 16.0;
