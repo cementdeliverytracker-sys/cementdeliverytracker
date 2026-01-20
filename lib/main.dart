@@ -7,7 +7,7 @@ import 'package:cementdeliverytracker/features/auth/presentation/pages/splash_pa
 import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/role_selection_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin_dashboard_page.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/admin_dashboard_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/employee_dashboard_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/pending_approval_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/super_admin_dashboard_page.dart';
