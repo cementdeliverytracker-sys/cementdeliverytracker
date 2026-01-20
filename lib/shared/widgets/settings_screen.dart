@@ -1,7 +1,10 @@
+import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/shared/widgets/change_password_dialog.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -80,6 +83,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
+              if (role == AppConstants.userTypeAdmin) ...[
+                ListTile(
+                  leading: const Icon(Icons.badge, color: Colors.white),
+                  title: Text(
+                    'Admin ID: ${userData.adminId ?? 'Not assigned'}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: const Text(
+                    'Share this ID when needed. It cannot be changed.',
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
+                ),
+                _EmployeeCodeCard(userId: userData.userId),
+              ],
               const Divider(color: Colors.white24),
 
               // Theme Toggle
@@ -167,6 +184,124 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _EmployeeCodeCard extends StatelessWidget {
+  final String userId;
+
+  const _EmployeeCodeCard({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection(AppConstants.enterprisesCollection)
+          .doc(userId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const ListTile(
+            leading: Icon(Icons.vpn_key, color: Colors.white),
+            title: Text(
+              'Loading employee code...',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
+
+        final data = snapshot.data?.data();
+        final adminCode = (data?['adminCode'] ?? '') as String;
+
+        if (adminCode.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Card(
+            color: const Color(0xFF1E1E1E),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.vpn_key, size: 20, color: Color(0xFFFF6F00)),
+                      SizedBox(width: 8),
+                      Text(
+                        'Employee Join Code',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Share this code with employees to join your company',
+                    style: TextStyle(fontSize: 13, color: Colors.white60),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFFFF6F00).withOpacity(0.3),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          adminCode,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'monospace',
+                            color: Color(0xFFFF6F00),
+                            letterSpacing: 3,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.copy,
+                            color: Color(0xFFFF6F00),
+                          ),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: adminCode));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Code copied to clipboard!'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          tooltip: 'Copy code',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },

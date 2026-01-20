@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:cementdeliverytracker/main.dart';
 import 'package:cementdeliverytracker/shared/widgets/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +56,18 @@ class _SignupPageState extends State<SignupPage> {
             : _phoneController.text.trim(),
         imagePath: _selectedImage!.path,
       );
+
+      // If signup succeeds, move to AuthGate so routing can happen by userType
+      if (!mounted) return;
+      final authNotifier = context.read<AuthNotifier>();
+      final isAuthenticated = authNotifier.state == AuthState.authenticated;
+      if (isAuthenticated) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
+        );
+        return; // keep loading spinner until navigation completes
+      }
     } catch (e) {
       if (mounted) {
         AppUtils.showSnackBar(context, e.toString(), isError: true);

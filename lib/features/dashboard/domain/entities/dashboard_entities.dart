@@ -7,6 +7,7 @@ class DashboardData extends Equatable {
   final String userType;
   final String? imageUrl;
   final String? phone;
+  final String? adminId;
 
   const DashboardData({
     required this.userId,
@@ -15,6 +16,7 @@ class DashboardData extends Equatable {
     required this.userType,
     this.imageUrl,
     this.phone,
+    this.adminId,
   });
 
   @override
@@ -25,5 +27,6 @@ class DashboardData extends Equatable {
     userType,
     imageUrl,
     phone,
+    adminId,
   ];
 }

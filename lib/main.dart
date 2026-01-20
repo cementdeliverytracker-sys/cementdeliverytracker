@@ -5,6 +5,7 @@ import 'package:cementdeliverytracker/features/auth/presentation/pages/login_pag
 import 'package:cementdeliverytracker/features/auth/presentation/pages/signup_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/splash_page.dart';
 import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
+import 'package:cementdeliverytracker/features/auth/presentation/pages/role_selection_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin_dashboard_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/employee_dashboard_page.dart';
@@ -99,6 +100,11 @@ class AuthGate extends StatelessWidget {
                 return const AdminDashboardPage();
               case AppConstants.userTypeEmployee:
                 return const EmployeeDashboardPage();
+              case AppConstants.userTypeTempEmployee:
+                return const RoleSelectionPage();
+              case AppConstants.userTypePending:
+              case AppConstants.userTypePendingEmployee:
+                return const PendingApprovalPage();
               default:
                 return const PendingApprovalPage();
             }

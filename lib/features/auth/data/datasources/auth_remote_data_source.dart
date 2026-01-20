@@ -72,11 +72,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .collection(AppConstants.usersCollection)
           .doc(userCredential.user!.uid)
           .set({
+            'uid': userCredential.user!.uid,
             'username': params.username,
             'email': params.email,
             'phone': params.phone,
             'image_url': imageUrl,
-            'userType': AppConstants.userTypePending,
+            'userType': AppConstants.userTypeTempEmployee,
+            'adminId': null,
+            'createdAt': FieldValue.serverTimestamp(),
             'created_at': DateTime.now().toIso8601String(),
           });
 

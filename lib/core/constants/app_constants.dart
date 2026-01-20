@@ -9,6 +9,8 @@ class AppConstants {
 
   // User Types
   static const String userTypePending = 'pending';
+  static const String userTypePendingEmployee = 'pending_employee';
+  static const String userTypeTempEmployee = 'temp_employee';
   static const String userTypeSuperAdmin = 'super_admin';
   static const String userTypeAdmin = 'admin';
   static const String userTypeEmployee = 'employee';
