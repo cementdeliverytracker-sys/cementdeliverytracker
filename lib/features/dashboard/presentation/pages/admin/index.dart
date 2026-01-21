@@ -5,6 +5,7 @@
 /// - Pages: AdminDashboardPage, DashboardScreen, EmployeesScreen, EmployeesListPage, PendingEmployeeRequestsPage, ReportsScreen
 /// - Services: AdminEmployeeService for employee operations
 /// - Widgets: Located in dashboard_widgets.dart (shared across dashboard module)
+library;
 
 export 'pages/index.dart';
 export 'services/index.dart';

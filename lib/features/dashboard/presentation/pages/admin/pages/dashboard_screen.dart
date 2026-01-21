@@ -248,7 +248,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         const Text(
                           'Set up your enterprise',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -276,7 +276,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           decoration: const InputDecoration(
                             labelText: 'Category',
                           ),
-                          value: _selectedCategory,
+                          initialValue: _selectedCategory,
                           items: _categories
                               .map(
                                 (c) =>

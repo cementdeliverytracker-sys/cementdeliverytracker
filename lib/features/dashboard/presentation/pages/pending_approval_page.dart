@@ -96,7 +96,7 @@ class PendingApprovalPage extends StatelessWidget {
               const SizedBox(height: 40),
               const Text(
                 'Please check back later or contact support if you have any questions.',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
             ],
