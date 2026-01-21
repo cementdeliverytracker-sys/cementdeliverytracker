@@ -11,7 +11,6 @@ import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admi
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/employee_dashboard_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/pending_approval_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/super_admin_dashboard_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cementdeliverytracker/firebase_options.dart';
@@ -79,20 +78,21 @@ class AuthGate extends StatelessWidget {
           return const LoginPage();
         }
 
-        return FutureBuilder<Map<String, dynamic>?>(
-          future: _getUserData(user.id),
+        return FutureBuilder<UserProfile?>(
+          future: authNotifier.loadUserProfile(user.id),
           builder: (ctx, userSnapshot) {
             if (userSnapshot.connectionState == ConnectionState.waiting) {
               return const SplashPage();
             }
 
-            final userData = userSnapshot.data;
-            if (userData == null) {
+            final userProfile = userSnapshot.data;
+            if (userProfile == null) {
               return const _MissingProfilePage();
             }
 
-            final userType =
-                userData['userType'] ?? AppConstants.userTypePending;
+            final userType = userProfile.userType.isNotEmpty
+                ? userProfile.userType
+                : AppConstants.userTypePending;
             switch (userType) {
               case AppConstants.userTypeSuperAdmin:
                 return const SuperAdminDashboardPage();
@@ -165,21 +165,5 @@ class _MissingProfilePage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-Future<Map<String, dynamic>?> _getUserData(String userId) async {
-  try {
-    final doc = await FirebaseFirestore.instance
-        .collection(AppConstants.usersCollection)
-        .doc(userId)
-        .get();
-
-    if (doc.exists) {
-      return doc.data();
-    }
-    return null;
-  } catch (_) {
-    return null;
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/errors/failures.dart';
@@ -13,6 +14,10 @@ abstract class AuthRemoteDataSource {
   Future<AuthUser> signup(SignupParams params);
   Future<void> logout();
   Future<void> changePassword(ChangePasswordParams params);
+  Future<UserProfile?> fetchUserProfile(String userId);
+  Future<UserProfile> ensureEmployeeId(String userId);
+  Future<String> submitEmployeeJoinRequest(String userId, String adminCode);
+  Future<void> submitAdminRequest(String userId, String companyName);
   Stream<AuthUser?> get authStateChanges;
   AuthUser? get currentUser;
 }
@@ -185,6 +190,143 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         );
       default:
         return AuthFailure('Authentication failed: ${e.message}');
+    }
+  }
+
+  @override
+  Future<UserProfile?> fetchUserProfile(String userId) async {
+    try {
+      final doc = await firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+
+      if (!doc.exists) return null;
+
+      return _mapDocumentToProfile(doc.data(), userId);
+    } catch (e) {
+      throw ServerFailure('Failed to load profile: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<UserProfile> ensureEmployeeId(String userId) async {
+    try {
+      final profile = await fetchUserProfile(userId);
+      if (profile == null) {
+        throw ServerFailure('User profile not found');
+      }
+
+      final isEmployee = profile.userType == AppConstants.userTypeEmployee;
+      final hasId = (profile.employeeId ?? '').trim().isNotEmpty;
+      if (!isEmployee || hasId) return profile;
+
+      final newId = await _generateUniqueEmployeeId();
+      await firestore.collection(AppConstants.usersCollection).doc(userId).set({
+        'employeeId': newId,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      return profile.copyWith(employeeId: newId);
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw ServerFailure('Failed to ensure employee ID: ${e.toString()}');
+    }
+  }
+
+  UserProfile _mapDocumentToProfile(Map<String, dynamic>? data, String userId) {
+    final safe = data ?? <String, dynamic>{};
+
+    return UserProfile(
+      id: userId,
+      email: (safe['email'] ?? '') as String,
+      username: (safe['username'] ?? '') as String,
+      userType: (safe['userType'] ?? AppConstants.userTypePending) as String,
+      adminId: safe['adminId'] as String?,
+      employeeId: safe['employeeId'] as String?,
+      phone: safe['phone'] as String?,
+      imageUrl: safe['image_url'] as String?,
+    );
+  }
+
+  Future<String> _generateUniqueEmployeeId() async {
+    const min = 100000;
+    const max = 999999;
+    final rand = Random.secure();
+
+    for (int i = 0; i < 10; i++) {
+      final candidate = (min + rand.nextInt(max - min + 1)).toString();
+      final clash = await firestore
+          .collection(AppConstants.usersCollection)
+          .where('employeeId', isEqualTo: candidate)
+          .limit(1)
+          .get();
+      if (clash.docs.isEmpty) return candidate;
+    }
+
+    return (min + rand.nextInt(max - min + 1)).toString();
+  }
+
+  @override
+  Future<String> submitEmployeeJoinRequest(
+    String userId,
+    String adminCode,
+  ) async {
+    try {
+      // Verify admin code exists
+      final enterpriseSnapshot = await firestore
+          .collection(AppConstants.enterprisesCollection)
+          .where('adminCode', isEqualTo: adminCode)
+          .limit(1)
+          .get();
+
+      if (enterpriseSnapshot.docs.isEmpty) {
+        throw ValidationFailure('Invalid admin code');
+      }
+
+      final adminId = enterpriseSnapshot.docs.first.id;
+
+      // Update user with pending employee request
+      await firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .update({
+            'adminId': adminId,
+            'userType': AppConstants.userTypePendingEmployee,
+            'employeeRequestData': {
+              'status': 'pending',
+              'requestedAt': FieldValue.serverTimestamp(),
+              'adminCode': adminCode,
+            },
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+
+      return adminId;
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw ServerFailure(
+        'Failed to submit employee join request: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> submitAdminRequest(String userId, String companyName) async {
+    try {
+      await firestore
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .update({
+            'userType': AppConstants.userTypePending,
+            'adminRequestData': {
+              'companyName': companyName,
+              'requestedAt': FieldValue.serverTimestamp(),
+              'status': 'pending',
+            },
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw ServerFailure('Failed to submit admin request: ${e.toString()}');
     }
   }
 }

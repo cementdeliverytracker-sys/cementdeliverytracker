@@ -82,14 +82,14 @@ class _OrdersListPageState extends State<OrdersListPage> {
                   Icon(
                     Icons.inbox_outlined,
                     size: 64,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No orders yet',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -97,7 +97,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
                     'Create your first order to get started',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                     ),
                   ),
                 ],
@@ -197,7 +197,7 @@ class _OrderCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor().withOpacity(0.2),
+                      color: _getStatusColor().withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: _getStatusColor(), width: 1),
                     ),

@@ -1,11 +1,7 @@
-import 'dart:math';
-
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/errors/failures.dart';
 import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
 import 'package:cementdeliverytracker/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,6 +14,10 @@ class AuthNotifier extends ChangeNotifier {
   final GetAuthStateUseCase getAuthStateUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
   final ChangePasswordUseCase changePasswordUseCase;
+  final GetUserProfileUseCase getUserProfileUseCase;
+  final EnsureEmployeeIdUseCase ensureEmployeeIdUseCase;
+  final SubmitEmployeeJoinRequestUseCase submitEmployeeJoinRequestUseCase;
+  final SubmitAdminRequestUseCase submitAdminRequestUseCase;
 
   AuthState _state = AuthState.initial;
   AuthUser? _user;
@@ -30,6 +30,10 @@ class AuthNotifier extends ChangeNotifier {
     required this.getAuthStateUseCase,
     required this.getCurrentUserUseCase,
     required this.changePasswordUseCase,
+    required this.getUserProfileUseCase,
+    required this.ensureEmployeeIdUseCase,
+    required this.submitEmployeeJoinRequestUseCase,
+    required this.submitAdminRequestUseCase,
   }) {
     _initializeAuthState();
   }
@@ -46,7 +50,7 @@ class AuthNotifier extends ChangeNotifier {
       if (user != null) {
         _user = user;
         _state = AuthState.authenticated;
-        await _ensureEmployeeId(user.id);
+        await _ensureEmployeeIdIfNeeded(user.id);
       } else {
         _user = null;
         _state = AuthState.unauthenticated;
@@ -110,7 +114,7 @@ class AuthNotifier extends ChangeNotifier {
         _user = user;
         _state = AuthState.authenticated;
         _errorMessage = null;
-        await _ensureEmployeeId(user.id);
+        await _ensureEmployeeIdIfNeeded(user.id);
         notifyListeners();
       },
     );
@@ -146,10 +150,19 @@ class AuthNotifier extends ChangeNotifier {
         _user = user;
         _state = AuthState.authenticated;
         _errorMessage = null;
-        _ensureEmployeeId(user.id);
+        _ensureEmployeeIdIfNeeded(user.id);
         notifyListeners();
       },
     );
+  }
+
+  Future<UserProfile?> loadUserProfile(String userId) async {
+    final result = await getUserProfileUseCase(userId);
+
+    return result.fold((failure) {
+      _errorMessage ??= _mapFailureToMessage(failure);
+      return null;
+    }, (profile) => profile);
   }
 
   Future<void> logout() async {
@@ -213,51 +226,68 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> _ensureEmployeeId(String userId) async {
-    try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .get();
+  Future<void> _ensureEmployeeIdIfNeeded(String userId) async {
+    final result = await ensureEmployeeIdUseCase(userId);
 
-      final data = userDoc.data();
-      if (data == null) return;
-
-      final userType = data['userType'] as String?;
-      if (userType != AppConstants.userTypeEmployee) return;
-
-      final existingId = (data['employeeId'] ?? '') as String;
-      if (existingId.trim().isNotEmpty) return;
-
-      final newId = await _generateUniqueEmployeeId();
-
-      await userDoc.reference.set({
-        'employeeId': newId,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-    } catch (e) {
-      // Silent failure; employee will just lack ID until next login triggers retry.
-    }
+    result.fold((failure) {
+      // Failure is intentionally silent to avoid blocking login; retry on next auth event.
+      _errorMessage ??= _mapFailureToMessage(failure);
+    }, (_) {});
   }
 
-  Future<String> _generateUniqueEmployeeId() async {
-    const min = 100000;
-    const max = 999999;
-    final rand = Random.secure();
-
-    for (int i = 0; i < 10; i++) {
-      final candidate = (min + rand.nextInt(max - min + 1)).toString();
-      final clash = await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .where('employeeId', isEqualTo: candidate)
-          .limit(1)
-          .get();
-      if (clash.docs.isEmpty) {
-        return candidate;
-      }
+  Future<String?> submitEmployeeJoinRequest(String adminCode) async {
+    if (_user == null) {
+      _errorMessage = 'Not authenticated';
+      notifyListeners();
+      return null;
     }
 
-    // Fallback: allow last generated value even if uniqueness check exceeded attempts.
-    return (min + rand.nextInt(max - min + 1)).toString();
+    _state = AuthState.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await submitEmployeeJoinRequestUseCase(_user!.id, adminCode);
+
+    return result.fold(
+      (failure) {
+        _state = AuthState.error;
+        _errorMessage = _mapFailureToMessage(failure);
+        notifyListeners();
+        return null;
+      },
+      (adminId) {
+        _state = AuthState.authenticated;
+        notifyListeners();
+        return adminId;
+      },
+    );
+  }
+
+  Future<bool> submitAdminRequest(String companyName) async {
+    if (_user == null) {
+      _errorMessage = 'Not authenticated';
+      notifyListeners();
+      return false;
+    }
+
+    _state = AuthState.loading;
+    _errorMessage = null;
+    notifyListeners();
+
+    final result = await submitAdminRequestUseCase(_user!.id, companyName);
+
+    return result.fold(
+      (failure) {
+        _state = AuthState.error;
+        _errorMessage = _mapFailureToMessage(failure);
+        notifyListeners();
+        return false;
+      },
+      (_) {
+        _state = AuthState.authenticated;
+        notifyListeners();
+        return true;
+      },
+    );
   }
 }

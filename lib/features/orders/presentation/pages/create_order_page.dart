@@ -232,10 +232,10 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6F00).withOpacity(0.1),
+                  color: const Color(0xFFFF6F00).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: const Color(0xFFFF6F00).withOpacity(0.3),
+                    color: const Color(0xFFFF6F00).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(

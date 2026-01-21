@@ -64,7 +64,7 @@ class FixedBottomButton extends StatelessWidget {
           color: const Color(0xFF2C2C2C),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -184,13 +184,13 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.white.withOpacity(0.3)),
+          Icon(icon, size: 64, color: Colors.white.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
             message,
             style: TextStyle(
               fontSize: 18,
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
             ),
           ),
           if (action != null) ...[const SizedBox(height: 24), action!],

@@ -55,6 +55,12 @@ class DependencyInjection {
     final getAuthStateUseCase = GetAuthStateUseCase(authRepository);
     final getCurrentUserUseCase = GetCurrentUserUseCase(authRepository);
     final changePasswordUseCase = ChangePasswordUseCase(authRepository);
+    final getUserProfileUseCase = GetUserProfileUseCase(authRepository);
+    final ensureEmployeeIdUseCase = EnsureEmployeeIdUseCase(authRepository);
+    final submitEmployeeJoinRequestUseCase = SubmitEmployeeJoinRequestUseCase(
+      authRepository,
+    );
+    final submitAdminRequestUseCase = SubmitAdminRequestUseCase(authRepository);
 
     // Auth Provider
     final authNotifier = AuthNotifier(
@@ -64,6 +70,10 @@ class DependencyInjection {
       getAuthStateUseCase: getAuthStateUseCase,
       getCurrentUserUseCase: getCurrentUserUseCase,
       changePasswordUseCase: changePasswordUseCase,
+      getUserProfileUseCase: getUserProfileUseCase,
+      ensureEmployeeIdUseCase: ensureEmployeeIdUseCase,
+      submitEmployeeJoinRequestUseCase: submitEmployeeJoinRequestUseCase,
+      submitAdminRequestUseCase: submitAdminRequestUseCase,
     );
 
     // Dashboard Data Source

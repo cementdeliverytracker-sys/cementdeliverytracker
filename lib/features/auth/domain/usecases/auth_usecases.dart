@@ -63,3 +63,43 @@ class ChangePasswordUseCase {
     return repository.changePassword(params);
   }
 }
+
+class GetUserProfileUseCase {
+  final AuthRepository repository;
+
+  GetUserProfileUseCase(this.repository);
+
+  Future<Either<Failure, UserProfile?>> call(String userId) {
+    return repository.getUserProfile(userId);
+  }
+}
+
+class EnsureEmployeeIdUseCase {
+  final AuthRepository repository;
+
+  EnsureEmployeeIdUseCase(this.repository);
+
+  Future<Either<Failure, UserProfile>> call(String userId) {
+    return repository.ensureEmployeeId(userId);
+  }
+}
+
+class SubmitEmployeeJoinRequestUseCase {
+  final AuthRepository repository;
+
+  SubmitEmployeeJoinRequestUseCase(this.repository);
+
+  Future<Either<Failure, String>> call(String userId, String adminCode) {
+    return repository.submitEmployeeJoinRequest(userId, adminCode);
+  }
+}
+
+class SubmitAdminRequestUseCase {
+  final AuthRepository repository;
+
+  SubmitAdminRequestUseCase(this.repository);
+
+  Future<Either<Failure, void>> call(String userId, String companyName) {
+    return repository.submitAdminRequest(userId, companyName);
+  }
+}

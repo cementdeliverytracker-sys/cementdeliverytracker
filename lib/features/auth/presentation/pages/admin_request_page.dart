@@ -2,7 +2,6 @@ import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/pending_approval_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,22 +29,17 @@ class _AdminRequestPageState extends State<AdminRequestPage> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = context.read<AuthNotifier>().user?.id;
-      if (userId == null) throw Exception('User not found');
+      final authNotifier = context.read<AuthNotifier>();
+      final companyName = _companyNameController.text.trim();
 
-      // Update user document with pending admin request
-      await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .update({
-            'userType': AppConstants.userTypePending,
-            'adminRequestData': {
-              'companyName': _companyNameController.text.trim(),
-              'requestedAt': FieldValue.serverTimestamp(),
-              'status': 'pending',
-            },
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+      // Submit admin request via domain layer
+      final success = await authNotifier.submitAdminRequest(companyName);
+
+      if (!success) {
+        throw Exception(
+          authNotifier.errorMessage ?? 'Failed to submit request',
+        );
+      }
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(

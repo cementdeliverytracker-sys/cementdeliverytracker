@@ -2,7 +2,7 @@ import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/pending_approval_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,47 +30,22 @@ class _EmployeeCodeEntryPageState extends State<EmployeeCodeEntryPage> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = context.read<AuthNotifier>().user?.id;
-      if (userId == null) throw Exception('User not found');
-
+      final authNotifier = context.read<AuthNotifier>();
       final adminCode = _adminCodeController.text.trim();
 
-      // Verify admin code exists in enterprises collection
-      final enterpriseQuery = await FirebaseFirestore.instance
-          .collection(AppConstants.enterprisesCollection)
-          .where('adminCode', isEqualTo: adminCode)
-          .limit(1)
-          .get();
+      // Submit employee join request via domain layer
+      final adminId = await authNotifier.submitEmployeeJoinRequest(adminCode);
 
-      if (enterpriseQuery.docs.isEmpty) {
-        throw Exception('Invalid admin code');
+      if (adminId == null) {
+        throw Exception(
+          authNotifier.errorMessage ?? 'Failed to submit request',
+        );
       }
 
-      final enterpriseDoc = enterpriseQuery.docs.first;
-      final adminOwnerId =
-          enterpriseDoc.id; // Document ID is the admin's userId
-      final enterpriseData = enterpriseDoc.data();
-
-      // Debug: Log what we're storing
-      print('DEBUG employee_code_entry: adminCode=$adminCode');
-      print('DEBUG employee_code_entry: adminOwnerId=$adminOwnerId');
-      print('DEBUG employee_code_entry: enterpriseData=$enterpriseData');
-
-      // Update user document with pending employee status and adminId
-      // Store the admin's actual user ID (UID) so requests can be queried by admin
-      await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .update({
-            'userType': AppConstants.userTypePendingEmployee,
-            'adminId': adminOwnerId,
-            'employeeRequestData': {
-              'requestedAt': FieldValue.serverTimestamp(),
-              'status': 'pending',
-              'adminCode': adminCode,
-            },
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
+      if (kDebugMode) {
+        debugPrint('DEBUG employee_code_entry: adminCode=$adminCode');
+        debugPrint('DEBUG employee_code_entry: adminId=$adminId');
+      }
 
       if (mounted) {
         AppUtils.showSnackBar(
@@ -187,7 +162,7 @@ class _EmployeeCodeEntryPageState extends State<EmployeeCodeEntryPage> {
                           'Note: You will be added to your admin\'s team once the code is verified.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                             fontSize: 12,
                           ),
                         ),

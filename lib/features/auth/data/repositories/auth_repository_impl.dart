@@ -76,4 +76,73 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   AuthUser? get currentUser => remoteDataSource.currentUser;
+
+  @override
+  Future<Either<Failure, UserProfile?>> getUserProfile(String userId) async {
+    if (!(await networkInfo.isConnected)) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+
+    try {
+      final profile = await remoteDataSource.fetchUserProfile(userId);
+      return Right(profile);
+    } catch (e) {
+      if (e is Failure) return Left(e);
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserProfile>> ensureEmployeeId(String userId) async {
+    if (!(await networkInfo.isConnected)) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+
+    try {
+      final profile = await remoteDataSource.ensureEmployeeId(userId);
+      return Right(profile);
+    } catch (e) {
+      if (e is Failure) return Left(e);
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> submitEmployeeJoinRequest(
+    String userId,
+    String adminCode,
+  ) async {
+    if (!(await networkInfo.isConnected)) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+
+    try {
+      final adminId = await remoteDataSource.submitEmployeeJoinRequest(
+        userId,
+        adminCode,
+      );
+      return Right(adminId);
+    } catch (e) {
+      if (e is Failure) return Left(e);
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> submitAdminRequest(
+    String userId,
+    String companyName,
+  ) async {
+    if (!(await networkInfo.isConnected)) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+
+    try {
+      await remoteDataSource.submitAdminRequest(userId, companyName);
+      return const Right(null);
+    } catch (e) {
+      if (e is Failure) return Left(e);
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

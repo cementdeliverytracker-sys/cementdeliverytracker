@@ -8,6 +8,16 @@ abstract class AuthRepository {
   Future<Either<Failure, AuthUser>> signup(SignupParams params);
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, void>> changePassword(ChangePasswordParams params);
+  Future<Either<Failure, UserProfile?>> getUserProfile(String userId);
+  Future<Either<Failure, UserProfile>> ensureEmployeeId(String userId);
+  Future<Either<Failure, String>> submitEmployeeJoinRequest(
+    String userId,
+    String adminCode,
+  );
+  Future<Either<Failure, void>> submitAdminRequest(
+    String userId,
+    String companyName,
+  );
   Stream<AuthUser?> get authStateChanges;
   AuthUser? get currentUser;
 }

@@ -263,7 +263,7 @@ class _EmployeeCodeCard extends StatelessWidget {
                       color: Colors.white10,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: const Color(0xFFFF6F00).withOpacity(0.3),
+                        color: const Color(0xFFFF6F00).withValues(alpha: 0.3),
                         width: 1.5,
                       ),
                     ),
