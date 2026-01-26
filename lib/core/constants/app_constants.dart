@@ -6,6 +6,8 @@ class AppConstants {
   // Firebase Collections
   static const String usersCollection = 'users';
   static const String enterprisesCollection = 'enterprises';
+  static const String distributorsCollection = 'distributors';
+  static const String attendanceLogsCollection = 'attendance_logs';
 
   // User Types
   static const String userTypePending = 'pending';

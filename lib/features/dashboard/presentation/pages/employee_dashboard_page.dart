@@ -1,5 +1,7 @@
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
+import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +13,13 @@ class EmployeeDashboardPage extends StatefulWidget {
 }
 
 class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    const EmployeeDashboardScreen(),
+    const SettingsScreen(),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +34,7 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Employee Dashboard'),
+        backgroundColor: const Color(0xFF1E1E1E),
         actions: [
           IconButton(
             onPressed: () async {
@@ -34,48 +44,24 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
           ),
         ],
       ),
-      body: Consumer<DashboardProvider>(
-        builder: (context, dashboardProvider, child) {
-          final userData = dashboardProvider.userData;
-
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Welcome Employee!',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                if (userData != null) ...[
-                  Text(
-                    'Username: ${userData.username}',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Email: ${userData.email}',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'View your tasks and track deliveries.',
-                    style: TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                ] else if (dashboardProvider.state ==
-                    DashboardState.loading) ...[
-                  const CircularProgressIndicator(),
-                ] else if (dashboardProvider.errorMessage != null) ...[
-                  Text(
-                    'Error: ${dashboardProvider.errorMessage}',
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
+      backgroundColor: const Color(0xFF2C2C2C),
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        backgroundColor: const Color(0xFF1E1E1E),
+        selectedItemColor: const Color(0xFFFF6F00),
+        unselectedItemColor: Colors.white60,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }

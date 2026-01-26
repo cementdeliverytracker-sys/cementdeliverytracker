@@ -29,7 +29,7 @@ service cloud.firestore {
     
     // Check if user is superadmin
     function isSuperAdmin(uid) {
-      return isAuthenticated() && getUserType(uid) == 'superadmin';
+      return isAuthenticated() && getUserType(uid) == 'super_admin';
     }
     
     // Check if user is admin
@@ -93,6 +93,12 @@ service cloud.firestore {
         && resource.data.adminId == request.auth.uid
         && !request.resource.data.diff(resource.data)
           .affectedKeys().hasAny(['userType', 'adminId']);
+
+      // Admin can move their employee back to pending (removal flow)
+      allow update: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid
+        && request.resource.data.adminId == request.auth.uid
+        && request.resource.data.userType == 'pending_employee';
       
       // === DELETE ===
       // Superadmin can delete any user
@@ -128,19 +134,25 @@ service cloud.firestore {
       allow read: if isAdmin(request.auth.uid)
         && resource.data.ownerId == request.auth.uid;
       
-      // Employee can read their admin's enterprise (if admin exists)
+      // Employee can read their admin's enterprise
       allow read: if isEmployee(request.auth.uid)
-        && exists(/databases/$(database)/documents/users/$(currentUserData().adminId))
-        && enterpriseId == currentUserData().adminId;
+        && currentUserData().get('adminId', '') == enterpriseId;
       
       // === UPDATE ===
       // Superadmin can update any enterprise
       allow update: if isSuperAdmin(request.auth.uid);
       
       // Admin can update their own enterprise (but not ownerId)
+      // Location can only be set once (when locationSet changes from false to true)
       allow update: if isAdmin(request.auth.uid)
         && resource.data.ownerId == request.auth.uid
-        && request.resource.data.ownerId == resource.data.ownerId;
+        && request.resource.data.ownerId == resource.data.ownerId
+        && (
+          // Allow location update only if locationSet is currently false
+          !resource.data.get('locationSet', false)
+          // Or allow updates that don't include location changes
+          || !('location' in request.resource.data.diff(resource.data).affectedKeys())
+        );
       
       // === DELETE ===
       // Superadmin can delete any enterprise
@@ -149,6 +161,106 @@ service cloud.firestore {
       // Admin can delete their own enterprise
       allow delete: if isAdmin(request.auth.uid)
         && resource.data.ownerId == request.auth.uid;
+      
+      // Deny all other cases
+      allow read, create, update, delete: if false;
+    }
+    
+    // ===========================
+    // DISTRIBUTORS COLLECTION
+    // ===========================
+    
+    match /distributors/{distributorId} {
+      
+      // === CREATE ===
+      // Superadmin can create any distributor
+      allow create: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can create distributors (adminId must match their UID)
+      allow create: if isAdmin(request.auth.uid)
+        && request.resource.data.adminId == request.auth.uid;
+      
+      // === READ ===
+      // Superadmin can read any distributor
+      allow read: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can read their own distributors
+      allow read: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid;
+      
+      // Employee can read their admin's distributors
+      allow read: if isEmployee(request.auth.uid)
+        && resource.data.adminId == currentUserData().adminId;
+      
+      // === UPDATE ===
+      // Superadmin can update any distributor
+      allow update: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can update their own distributors (but not adminId)
+      allow update: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid
+        && request.resource.data.adminId == request.auth.uid;
+      
+      // === DELETE ===
+      // Superadmin can delete any distributor
+      allow delete: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can delete their own distributors
+      allow delete: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid;
+      
+      // Deny all other cases
+      allow read, create, update, delete: if false;
+    }
+    
+    // ===========================
+    // ATTENDANCE LOGS COLLECTION
+    // ===========================
+    
+    match /attendance_logs/{logId} {
+      
+      // === CREATE ===
+      // Employee can create attendance log for themselves
+      // Check that the employeeId matches the authenticated user
+      allow create: if isAuthenticated()
+        && request.resource.data.employeeId == request.auth.uid
+        && request.resource.data.get('adminId', null) != null;
+      
+      // Admin can create attendance logs for their employees
+      allow create: if isAdmin(request.auth.uid)
+        && request.resource.data.adminId == request.auth.uid;
+      
+      // Superadmin can create any attendance log
+      allow create: if isSuperAdmin(request.auth.uid);
+      
+      // === READ ===
+      // Employee can read their own attendance logs
+      allow read: if isEmployee(request.auth.uid)
+        && resource.data.employeeId == request.auth.uid;
+      
+      // Admin can read their employees' attendance logs
+      allow read: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid;
+      
+      // Superadmin can read any attendance log
+      allow read: if isSuperAdmin(request.auth.uid);
+      
+      // === UPDATE ===
+      // Superadmin can update any attendance log
+      allow update: if isSuperAdmin(request.auth.uid)
+        && request.resource.data.employeeId == resource.data.employeeId
+        && request.resource.data.adminId == resource.data.adminId;
+      
+      // Deny all other updates
+      allow update: if false;
+      
+      // === DELETE ===
+      // Superadmin can delete any attendance log
+      allow delete: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can delete their employees' logs
+      allow delete: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid;
       
       // Deny all other cases
       allow read, create, update, delete: if false;

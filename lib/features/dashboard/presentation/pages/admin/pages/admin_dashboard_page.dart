@@ -1,5 +1,5 @@
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/dashboard_screen.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/employees_list_page.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/team_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/reports_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:cementdeliverytracker/features/orders/presentation/pages/orders_list_page.dart';
@@ -21,7 +21,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   late final List<Widget> _screens = [
     const DashboardScreen(),
     const OrdersListPage(),
-    const EmployeesScreen(),
+    const TeamScreen(),
     const ReportsScreen(),
     const SettingsScreen(),
   ];
@@ -45,7 +45,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Admin Dashboard'),
-          actions: _selectedIndex == 4
+          actions: _selectedIndex == 3
               ? null
               : [
                   IconButton(
