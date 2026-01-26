@@ -33,31 +33,22 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF2C2C2C),
+      appBar: AppBar(
+        title: const Text('Distributors'),
+        backgroundColor: const Color(0xFF1E1E1E),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _openDistributorForm(context, adminId),
+            tooltip: 'Add Distributor',
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Distributors',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add'),
-                  onPressed: () => _openDistributorForm(context, adminId),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
             Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: _service.getDistributorsStream(adminId),

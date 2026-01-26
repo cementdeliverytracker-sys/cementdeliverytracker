@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/theme_notifier.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_employee_service.dart';
@@ -20,7 +21,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen>
     with SingleTickerProviderStateMixin {
-  bool _isDarkTheme = true; // Dummy state for theme toggle
   late TabController _tabController;
 
   @override
@@ -167,19 +167,20 @@ class _SettingsScreenState extends State<SettingsScreen>
             ),
           ),
         ),
-        SwitchListTile(
-          title: const Text(
-            'Dark Theme',
-            style: TextStyle(color: Colors.white),
-          ),
-          value: _isDarkTheme,
-          onChanged: (value) {
-            setState(() {
-              _isDarkTheme = value;
-              // TODO: Implement actual theme toggle logic
-            });
+        Consumer<ThemeNotifier>(
+          builder: (context, themeNotifier, _) {
+            return SwitchListTile(
+              title: const Text(
+                'Dark Theme',
+                style: TextStyle(color: Colors.white),
+              ),
+              value: themeNotifier.isDarkTheme,
+              onChanged: (value) {
+                themeNotifier.setTheme(value);
+              },
+              activeThumbColor: const Color(0xFFFF6F00),
+            );
           },
-          activeThumbColor: const Color(0xFFFF6F00),
         ),
         const Divider(color: Colors.white24),
 

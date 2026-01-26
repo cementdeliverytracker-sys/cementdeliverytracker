@@ -1,6 +1,7 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/di/dependency_injection.dart';
 import 'package:cementdeliverytracker/core/theme/app_theme.dart';
+import 'package:cementdeliverytracker/core/theme/theme_notifier.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/login_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/signup_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/splash_page.dart';
@@ -37,23 +38,31 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: DependencyInjection.getProviders(),
-      child: MaterialApp(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        routes: {
-          AppConstants.routeLogin: (context) => const LoginPage(),
-          AppConstants.routeSignup: (context) => const SignupPage(),
-          AppConstants.routePendingApproval: (context) =>
-              const PendingApprovalPage(),
-          AppConstants.routeSuperAdminDashboard: (context) =>
-              const SuperAdminDashboardPage(),
-          AppConstants.routeAdminDashboard: (context) =>
-              const AdminDashboardPage(),
-          AppConstants.routeEmployeeDashboard: (context) =>
-              const EmployeeDashboardPage(),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, _) {
+          return MaterialApp(
+            title: AppConstants.appName,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeNotifier.isDarkTheme
+                ? ThemeMode.dark
+                : ThemeMode.light,
+            routes: {
+              AppConstants.routeLogin: (context) => const LoginPage(),
+              AppConstants.routeSignup: (context) => const SignupPage(),
+              AppConstants.routePendingApproval: (context) =>
+                  const PendingApprovalPage(),
+              AppConstants.routeSuperAdminDashboard: (context) =>
+                  const SuperAdminDashboardPage(),
+              AppConstants.routeAdminDashboard: (context) =>
+                  const AdminDashboardPage(),
+              AppConstants.routeEmployeeDashboard: (context) =>
+                  const EmployeeDashboardPage(),
+            },
+            home: const AuthGate(),
+          );
         },
-        home: const AuthGate(),
       ),
     );
   }
