@@ -3,124 +3,162 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // ===========================
+    // HELPER FUNCTIONS
+    // ===========================
+    
+    // Cached user data to avoid redundant get() calls
+    function cachedUserData(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+    
+    // Get current user's cached data
+    function currentUserData() {
+      return cachedUserData(request.auth.uid);
+    }
+    
+    // Get user type from cached data
+    function getUserType(uid) {
+      return cachedUserData(uid).userType;
+    }
+    
+    // Check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+    // Check if user is superadmin
+    function isSuperAdmin(uid) {
+      return isAuthenticated() && getUserType(uid) == 'superadmin';
     }
     
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    // Check if user is admin
+    function isAdmin(uid) {
+      return isAuthenticated() && getUserType(uid) == 'admin';
     }
     
-    function isAdmin() {
-      return isAuthenticated() && getUserData().userType == 'admin';
+    // Check if user is employee
+    function isEmployee(uid) {
+      return isAuthenticated() && getUserType(uid) == 'employee';
     }
     
-    function isSuperAdmin() {
-      return isAuthenticated() && getUserData().userType == 'super_admin';
+    // Check if UID matches current user
+    function isOwner(uid) {
+      return request.auth.uid == uid;
     }
     
-    function isEmployee() {
-      return isAuthenticated() && getUserData().userType == 'employee';
+    // Validate that admin exists (for adminId references)
+    function adminExists(adminId) {
+      return exists(/databases/$(database)/documents/users/$(adminId)) 
+        && cachedUserData(adminId).userType == 'admin';
     }
     
-    function belongsToSameCompany(adminId) {
-      return isAuthenticated() && getUserData().adminId == adminId;
-    }
+    // ===========================
+    // USERS COLLECTION
+    // ===========================
     
-    // Users collection
     match /users/{userId} {
-      // Anyone can create their own user document during signup
-      allow create: if isAuthenticated() && request.auth.uid == userId;
       
-      // Users can read their own data
-      allow read: if isOwner(userId);
+      // === CREATE ===
+      // Superadmin can create any user
+      allow create: if isSuperAdmin(request.auth.uid);
       
-      // Super admins can read all users
-      allow read: if isSuperAdmin();
-      
-      // Admins can read their employees
-      allow read: if isAdmin() && resource.data.adminId == request.auth.uid;
-      
-      // Users can update their own profile (but not userType or adminId)
-      allow update: if isOwner(userId) 
-        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['userType', 'adminId']));
-      
-      // Super admins can update any user (for approving admin requests)
-      allow update: if isSuperAdmin();
-      
-      // Admins can update their employees (but not userType or adminId)
-      allow update: if isAdmin() 
-        && resource.data.adminId == request.auth.uid
-        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['userType', 'adminId']));
-      
-      // No one can delete users (use soft delete by updating a field instead)
-      allow delete: if false;
-    }
-    
-    // Enterprises collection
-    match /enterprises/{enterpriseId} {
-      // Admins can create their own enterprise
-      allow create: if isAuthenticated() 
-        && isAdmin() 
-        && request.auth.uid == enterpriseId
-        && request.resource.data.ownerId == request.auth.uid;
-      
-      // Enterprise owners can read their enterprise
-      allow read: if isOwner(enterpriseId);
-      
-      // Super admins can read all enterprises
-      allow read: if isSuperAdmin();
-      
-      // Employees can read their admin's enterprise
-      allow read: if isEmployee() && getUserData().adminId == enterpriseId;
-      
-      // Temp employees can read enterprise for code verification
-      allow read: if isAuthenticated() && getUserData().userType == 'temp_employee';
-      
-      // Enterprise owners can update their enterprise (but not ownerId)
-      allow update: if isOwner(enterpriseId)
-        && request.resource.data.ownerId == resource.data.ownerId;
-      
-      // No one can delete enterprises
-      allow delete: if false;
-    }
-    
-    // Orders collection
-    match /orders/{orderId} {
-      // Admins can create orders for their company
-      allow create: if isAdmin() 
+      // Admin can create employees (must have valid adminId)
+      allow create: if isAdmin(request.auth.uid)
+        && request.resource.data.userType == 'employee'
         && request.resource.data.adminId == request.auth.uid;
       
-      // Employees can create orders for their company
-      allow create: if isEmployee() 
-        && request.resource.data.adminId == getUserData().adminId;
+      // === READ ===
+      // Superadmin can read any user
+      allow read: if isSuperAdmin(request.auth.uid);
       
-      // Order owners (admin or employee who created) can read
-      allow read: if isAuthenticated() 
-        && (resource.data.createdBy == request.auth.uid 
-            || resource.data.adminId == request.auth.uid
-            || (isEmployee() && resource.data.adminId == getUserData().adminId));
+      // User can read their own document
+      allow read: if isOwner(userId);
       
-      // Super admins can read all orders
-      allow read: if isSuperAdmin();
+      // Admin can read users in their team (adminId == request.auth.uid)
+      allow read: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid;
       
-      // Order creator or admin can update
-      allow update: if isAuthenticated() 
-        && (resource.data.createdBy == request.auth.uid 
-            || resource.data.adminId == request.auth.uid)
-        && request.resource.data.adminId == resource.data.adminId
-        && request.resource.data.createdBy == resource.data.createdBy;
+      // === UPDATE ===
+      // Superadmin can update any user
+      allow update: if isSuperAdmin(request.auth.uid);
       
-      // Only admins can delete orders from their company
-      allow delete: if isAdmin() && resource.data.adminId == request.auth.uid;
+      // User can update their own document (but not userType or adminId)
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data)
+          .affectedKeys().hasAny(['userType', 'adminId']);
+      
+      // Admin can update their team members (but not userType or adminId)
+      allow update: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid
+        && !request.resource.data.diff(resource.data)
+          .affectedKeys().hasAny(['userType', 'adminId']);
+      
+      // === DELETE ===
+      // Superadmin can delete any user
+      allow delete: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can delete their team members
+      allow delete: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid;
+      
+      // Deny all other cases
+      allow read, create, update, delete: if false;
     }
     
-    // Default deny all other collections
+    // ===========================
+    // ENTERPRISES COLLECTION
+    // ===========================
+    
+    match /enterprises/{enterpriseId} {
+      
+      // === CREATE ===
+      // Superadmin can create any enterprise
+      allow create: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can create their own enterprise (ownerId must match their UID)
+      allow create: if isAdmin(request.auth.uid)
+        && request.resource.data.ownerId == request.auth.uid;
+      
+      // === READ ===
+      // Superadmin can read any enterprise
+      allow read: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can read their own enterprise
+      allow read: if isAdmin(request.auth.uid)
+        && resource.data.ownerId == request.auth.uid;
+      
+      // Employee can read their admin's enterprise (if admin exists)
+      allow read: if isEmployee(request.auth.uid)
+        && exists(/databases/$(database)/documents/users/$(currentUserData().adminId))
+        && enterpriseId == currentUserData().adminId;
+      
+      // === UPDATE ===
+      // Superadmin can update any enterprise
+      allow update: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can update their own enterprise (but not ownerId)
+      allow update: if isAdmin(request.auth.uid)
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId;
+      
+      // === DELETE ===
+      // Superadmin can delete any enterprise
+      allow delete: if isSuperAdmin(request.auth.uid);
+      
+      // Admin can delete their own enterprise
+      allow delete: if isAdmin(request.auth.uid)
+        && resource.data.ownerId == request.auth.uid;
+      
+      // Deny all other cases
+      allow read, create, update, delete: if false;
+    }
+    
+    // ===========================
+    // CATCH-ALL DENY RULE
+    // ===========================
+    
+    // Deny access to all other collections
     match /{document=**} {
       allow read, write: if false;
     }
