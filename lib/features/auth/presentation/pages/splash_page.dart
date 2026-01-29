@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -6,7 +7,6 @@ class SplashPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -17,7 +17,7 @@ class SplashPage extends StatelessWidget {
             //   child: Image.asset('assets/images/cementdeliverytracker.png'),
             // ),
             const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6F00)),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
             const SizedBox(height: 20),
             const Text(

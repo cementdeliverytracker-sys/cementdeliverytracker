@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 
 class ReportsScreen extends StatelessWidget {
   const ReportsScreen({super.key});
@@ -8,7 +9,7 @@ class ReportsScreen extends StatelessWidget {
     return const Center(
       child: Text(
         'Reports Screen',
-        style: TextStyle(fontSize: 24, color: Colors.white),
+        style: TextStyle(fontSize: 24, color: AppColors.textPrimary),
       ),
     );
   }

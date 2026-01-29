@@ -1,7 +1,8 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/di/dependency_injection.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/core/theme/app_theme.dart';
-import 'package:cementdeliverytracker/core/theme/theme_notifier.dart';
+import 'package:cementdeliverytracker/core/theme/theme_provider.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/login_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/signup_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/splash_page.dart';
@@ -37,17 +38,18 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: DependencyInjection.getProviders(),
-      child: Consumer<ThemeNotifier>(
-        builder: (context, themeNotifier, _) {
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ...DependencyInjection.getProviders(),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
           return MaterialApp(
             title: AppConstants.appName,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
-            themeMode: themeNotifier.isDarkTheme
-                ? ThemeMode.dark
-                : ThemeMode.light,
+            themeMode: themeProvider.themeMode,
             routes: {
               AppConstants.routeLogin: (context) => const LoginPage(),
               AppConstants.routeSignup: (context) => const SignupPage(),
@@ -130,7 +132,6 @@ class _MissingProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -140,13 +141,13 @@ class _MissingProfilePage extends StatelessWidget {
               const Text(
                 'Your account profile could not be loaded.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: AppColors.textPrimary, fontSize: 16),
               ),
               const SizedBox(height: 12),
               const Text(
                 'Please try again, or contact an administrator.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 16),
               Row(

@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart';
@@ -62,7 +63,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
                   const SizedBox(height: 16),
                   Text(
                     ordersProvider.errorMessage ?? 'An error occurred',
-                    style: const TextStyle(color: Colors.white70),
+                    style: const TextStyle(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -82,14 +83,14 @@ class _OrdersListPageState extends State<OrdersListPage> {
                   Icon(
                     Icons.inbox_outlined,
                     size: 64,
-                    color: Colors.white.withValues(alpha: 0.3),
+                    color: AppColors.textTertiary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No orders yet',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -97,7 +98,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
                     'Create your first order to get started',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.4),
+                      color: AppColors.textTertiary,
                     ),
                   ),
                 ],
@@ -135,7 +136,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
               },
               icon: const Icon(Icons.add),
               label: const Text('New Order'),
-              backgroundColor: const Color(0xFFFF6F00),
+              backgroundColor: AppColors.primary,
             )
           : null,
     );
@@ -166,7 +167,7 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF1E1E1E),
+      color: AppColors.cardBackground,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
@@ -187,7 +188,7 @@ class _OrderCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -215,11 +216,18 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.phone, size: 14, color: Colors.white60),
+                  const Icon(
+                    Icons.phone,
+                    size: 14,
+                    color: AppColors.textSecondary,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     order.customerPhone,
-                    style: const TextStyle(fontSize: 14, color: Colors.white60),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -229,7 +237,7 @@ class _OrderCard extends StatelessWidget {
                   const Icon(
                     Icons.location_on,
                     size: 14,
-                    color: Colors.white60,
+                    color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -237,7 +245,7 @@ class _OrderCard extends StatelessWidget {
                       order.deliveryAddress,
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.white60,
+                        color: AppColors.textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -246,7 +254,7 @@ class _OrderCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(color: Colors.white24),
+              const Divider(color: AppColors.divider),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -259,7 +267,7 @@ class _OrderCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFFFF6F00),
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -267,7 +275,7 @@ class _OrderCard extends StatelessWidget {
                         '${order.quantity} bags',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white54,
+                          color: AppColors.textTertiary,
                         ),
                       ),
                     ],
@@ -277,7 +285,7 @@ class _OrderCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],

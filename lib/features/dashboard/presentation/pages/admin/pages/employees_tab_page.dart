@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/pending_employee_requests_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_employee_service.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
@@ -31,7 +32,7 @@ class EmployeesTabPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -52,7 +53,7 @@ class EmployeesTabPage extends StatelessWidget {
                           Text(
                             'Loading employees...',
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: AppColors.textSecondary,
                               fontSize: 14,
                             ),
                           ),
@@ -89,12 +90,12 @@ class EmployeesTabPage extends StatelessWidget {
                           height: 48,
                           width: 48,
                           decoration: BoxDecoration(
-                            color: const Color(0x33FF6F00),
+                            color: AppColors.primaryLight,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.people,
-                            color: Color(0xFFFF6F00),
+                            color: AppColors.primary,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -106,7 +107,7 @@ class EmployeesTabPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -114,7 +115,7 @@ class EmployeesTabPage extends StatelessWidget {
                               '$memberCount approved',
                               style: const TextStyle(
                                 fontSize: 14,
-                                color: Colors.white70,
+                                color: AppColors.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -122,7 +123,7 @@ class EmployeesTabPage extends StatelessWidget {
                               'Tap to view list',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white54,
+                                color: AppColors.textTertiary,
                               ),
                             ),
                           ],
@@ -145,10 +146,12 @@ class EmployeesTabPage extends StatelessWidget {
               bottom: 0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2C2C2C),
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
+                      color: Theme.of(
+                        context,
+                      ).shadowColor.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, -2),
                     ),
@@ -169,8 +172,8 @@ class EmployeesTabPage extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF6F00),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.onPrimary,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 12,
@@ -268,7 +271,7 @@ class _EmployeesListFullPageState extends State<EmployeesListFullPage> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -288,7 +291,7 @@ class _EmployeesListFullPageState extends State<EmployeesListFullPage> {
                     Text(
                       name,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -296,7 +299,7 @@ class _EmployeesListFullPageState extends State<EmployeesListFullPage> {
                     Text(
                       role,
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -413,7 +416,10 @@ class EmployeeCard extends StatelessWidget {
         title: Row(
           children: [
             Expanded(
-              child: Text(name, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                name,
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
             ),
             Container(
               width: 10,
@@ -428,9 +434,12 @@ class EmployeeCard extends StatelessWidget {
         ),
         subtitle: Text(
           '$email • $phone',
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
-        trailing: const Icon(Icons.chevron_right, color: Colors.white70),
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: AppColors.textSecondary,
+        ),
         onTap: onTap,
       ),
     );

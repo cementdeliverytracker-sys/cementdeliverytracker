@@ -1,5 +1,6 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/theme/theme_notifier.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
+import 'package:cementdeliverytracker/core/theme/theme_provider.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_employee_service.dart';
@@ -59,7 +60,11 @@ class _SettingsScreenState extends State<SettingsScreen>
                 const SizedBox(height: 16),
                 Text(
                   dashboardProvider.errorMessage ?? 'Loading profile...',
-                  style: const TextStyle(color: Colors.white70),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                  ),
                 ),
               ],
             ),
@@ -68,44 +73,40 @@ class _SettingsScreenState extends State<SettingsScreen>
 
         // Only show tabs for admin users
         if (role == AppConstants.userTypeAdmin) {
-          return Container(
-            color: const Color(0xFF2C2C2C),
-            child: Column(
-              children: [
-                Container(
-                  color: const Color(0xFF1E1E1E),
-                  child: TabBar(
-                    controller: _tabController,
-                    indicatorColor: const Color(0xFFFF6F00),
-                    labelColor: const Color(0xFFFF6F00),
-                    unselectedLabelColor: Colors.white60,
-                    tabs: const [
-                      Tab(text: 'General'),
-                      Tab(text: 'Location'),
-                      Tab(text: 'Employee Management'),
-                    ],
-                  ),
+          return Column(
+            children: [
+              Material(
+                color: Theme.of(context).colorScheme.surface,
+                child: TabBar(
+                  controller: _tabController,
+                  indicatorColor: AppColors.primary,
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                  tabs: const [
+                    Tab(text: 'General'),
+                    Tab(text: 'Location'),
+                    Tab(text: 'Employee Management'),
+                  ],
                 ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildGeneralSettings(userData, role),
-                      _LocationTab(userId: userData.userId),
-                      _EmployeeManagementTab(userId: userData.userId),
-                    ],
-                  ),
+              ),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildGeneralSettings(userData, role),
+                    _LocationTab(userId: userData.userId),
+                    _EmployeeManagementTab(userId: userData.userId),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         }
 
         // For non-admin users, show general settings only
-        return Container(
-          color: const Color(0xFF2C2C2C),
-          child: _buildGeneralSettings(userData, role),
-        );
+        return _buildGeneralSettings(userData, role);
       },
     );
   }
@@ -114,94 +115,92 @@ class _SettingsScreenState extends State<SettingsScreen>
     return ListView(
       children: [
         // Profile Info Section
-        const Padding(
-          padding: EdgeInsets.all(16.0),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Text(
             'Profile Information',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
             ),
           ),
         ),
         ListTile(
-          leading: const Icon(Icons.person, color: Colors.white),
-          title: Text(
-            'Username: ${userData.username}',
-            style: const TextStyle(color: Colors.white),
-          ),
+          leading: Icon(Icons.person, color: Theme.of(context).iconTheme.color),
+          title: Text('Username: ${userData.username}'),
         ),
         ListTile(
-          leading: const Icon(Icons.email, color: Colors.white),
-          title: Text(
-            'Email: ${userData.email}',
-            style: const TextStyle(color: Colors.white),
-          ),
+          leading: Icon(Icons.email, color: Theme.of(context).iconTheme.color),
+          title: Text('Email: ${userData.email}'),
         ),
         if (role == AppConstants.userTypeAdmin) ...[
           ListTile(
-            leading: const Icon(Icons.badge, color: Colors.white),
-            title: Text(
-              'Admin ID: ${userData.adminId ?? 'Not assigned'}',
-              style: const TextStyle(color: Colors.white),
+            leading: Icon(
+              Icons.badge,
+              color: Theme.of(context).iconTheme.color,
             ),
-            subtitle: const Text(
+            title: Text('Admin ID: ${userData.adminId ?? 'Not assigned'}'),
+            subtitle: Text(
               'Share this ID when needed. It cannot be changed.',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
           _EmployeeCodeCard(userId: userData.userId),
         ],
-        const Divider(color: Colors.white24),
+        Divider(color: AppColors.divider),
 
-        // Theme Toggle
-        const Padding(
-          padding: EdgeInsets.all(16.0),
+        // Appearance Settings
+        Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Text(
             'Appearance',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
             ),
           ),
         ),
-        Consumer<ThemeNotifier>(
-          builder: (context, themeNotifier, _) {
+        Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) {
             return SwitchListTile(
-              title: const Text(
-                'Dark Theme',
-                style: TextStyle(color: Colors.white),
+              secondary: Icon(
+                themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                color: Theme.of(context).iconTheme.color,
               ),
-              value: themeNotifier.isDarkTheme,
-              onChanged: (value) {
-                themeNotifier.setTheme(value);
+              title: const Text('Dark Theme'),
+              subtitle: Text(
+                themeProvider.isDarkMode
+                    ? 'Dark mode enabled'
+                    : 'Light mode enabled',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              value: themeProvider.isDarkMode,
+              onChanged: (bool value) {
+                themeProvider.toggleTheme();
               },
-              activeThumbColor: const Color(0xFFFF6F00),
+              activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
             );
           },
         ),
-        const Divider(color: Colors.white24),
+        Divider(color: AppColors.divider),
 
         // Account Settings
-        const Padding(
-          padding: EdgeInsets.all(16.0),
+        Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Text(
             'Account',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
             ),
           ),
         ),
         ListTile(
-          leading: const Icon(Icons.lock, color: Colors.white),
-          title: const Text(
-            'Change Password',
-            style: TextStyle(color: Colors.white),
-          ),
+          leading: Icon(Icons.lock, color: Theme.of(context).iconTheme.color),
+          title: const Text('Change Password'),
           onTap: () {
             showDialog(
               context: context,
@@ -213,14 +212,11 @@ class _SettingsScreenState extends State<SettingsScreen>
         // Role-based sections
         if (role == 'super_admin') ...[
           ListTile(
-            leading: const Icon(
+            leading: Icon(
               Icons.admin_panel_settings,
-              color: Colors.white,
+              color: Theme.of(context).iconTheme.color,
             ),
-            title: const Text(
-              'Manage Admins',
-              style: TextStyle(color: Colors.white),
-            ),
+            title: const Text('Manage Admins'),
             onTap: () {
               // TODO: Navigate to manage admins screen
               ScaffoldMessenger.of(context).showSnackBar(
@@ -231,8 +227,8 @@ class _SettingsScreenState extends State<SettingsScreen>
         ],
 
         ListTile(
-          leading: const Icon(Icons.logout, color: Colors.white),
-          title: const Text('Logout', style: TextStyle(color: Colors.white)),
+          leading: Icon(Icons.logout, color: Theme.of(context).iconTheme.color),
+          title: const Text('Logout'),
           onTap: () async {
             await context.read<AuthNotifier>().logout();
           },
@@ -260,6 +256,7 @@ class _LocationTabState extends State<_LocationTab> {
   final _countryCtrl = TextEditingController();
   bool _saving = false;
   bool _locationSet = false;
+  bool _isLoading = false;
   double? _latitude;
   double? _longitude;
 
@@ -280,13 +277,19 @@ class _LocationTabState extends State<_LocationTab> {
   }
 
   Future<void> _loadLocationData() async {
+    if (!mounted) return;
+    
     try {
+      setState(() => _isLoading = true);
+      
       final doc = await FirebaseFirestore.instance
           .collection(AppConstants.enterprisesCollection)
           .doc(widget.userId)
           .get();
 
-      if (doc.exists && mounted) {
+      if (!mounted) return;
+
+      if (doc.exists) {
         final data = doc.data();
         final location = data?['location'] as Map<String, dynamic>?;
         final locationSet = data?['locationSet'] as bool? ?? false;
@@ -302,10 +305,14 @@ class _LocationTabState extends State<_LocationTab> {
             _latitude = (location['latitude'] as num?)?.toDouble();
             _longitude = (location['longitude'] as num?)?.toDouble();
           }
+          _isLoading = false;
         });
+      } else {
+        setState(() => _isLoading = false);
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error loading location: $e')));
@@ -449,6 +456,29 @@ class _LocationTabState extends State<_LocationTab> {
 
   @override
   Widget build(BuildContext context) {
+    // Show loading indicator while data is being loaded
+    if (_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Loading location...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.color
+                    ?.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -461,7 +491,7 @@ class _LocationTabState extends State<_LocationTab> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -490,17 +520,17 @@ class _LocationTabState extends State<_LocationTab> {
             else
               const Text(
                 'Set your business location for better service management',
-                style: TextStyle(fontSize: 14, color: Colors.white60),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _addressCtrl,
               enabled: !_locationSet,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Street Address',
                 hintText: 'e.g., 123 Main Street',
-                prefixIcon: Icon(Icons.location_on, color: Color(0xFFFF6F00)),
+                prefixIcon: Icon(Icons.location_on, color: AppColors.primary),
               ),
               validator: (v) =>
                   v == null || v.trim().isEmpty ? 'Address is required' : null,
@@ -512,13 +542,13 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _cityCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppColors.textPrimary),
                     decoration: const InputDecoration(
                       labelText: 'City',
                       hintText: 'e.g., Mumbai',
                       prefixIcon: Icon(
                         Icons.location_city,
-                        color: Color(0xFFFF6F00),
+                        color: AppColors.primary,
                       ),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty
@@ -531,11 +561,11 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _stateCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppColors.textPrimary),
                     decoration: const InputDecoration(
                       labelText: 'State',
                       hintText: 'e.g., Maharashtra',
-                      prefixIcon: Icon(Icons.map, color: Color(0xFFFF6F00)),
+                      prefixIcon: Icon(Icons.map, color: AppColors.primary),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'State is required'
@@ -551,13 +581,13 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _zipCodeCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppColors.textPrimary),
                     decoration: const InputDecoration(
                       labelText: 'ZIP Code',
                       hintText: 'e.g., 400001',
                       prefixIcon: Icon(
                         Icons.markunread_mailbox,
-                        color: Color(0xFFFF6F00),
+                        color: AppColors.primary,
                       ),
                     ),
                     keyboardType: TextInputType.number,
@@ -571,11 +601,11 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _countryCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppColors.textPrimary),
                     decoration: const InputDecoration(
                       labelText: 'Country',
                       hintText: 'e.g., India',
-                      prefixIcon: Icon(Icons.public, color: Color(0xFFFF6F00)),
+                      prefixIcon: Icon(Icons.public, color: AppColors.primary),
                     ),
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Country is required'
@@ -585,18 +615,19 @@ class _LocationTabState extends State<_LocationTab> {
               ],
             ),
             const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: _locationSet ? null : _pickLocationFromMap,
-              icon: const Icon(Icons.map, color: Color(0xFFFF6F00)),
-              label: const Text(
-                'Pick Location from Map',
-                style: TextStyle(color: Color(0xFFFF6F00)),
+            if (!_locationSet)
+              OutlinedButton.icon(
+                onPressed: _pickLocationFromMap,
+                icon: const Icon(Icons.map, color: AppColors.primary),
+                label: const Text(
+                  'Pick Location from Map',
+                  style: TextStyle(color: AppColors.primary),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.primary),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
               ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFFF6F00)),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -609,7 +640,7 @@ class _LocationTabState extends State<_LocationTab> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: AppColors.textOnPrimary,
                         ),
                       )
                     : const Icon(Icons.save),
@@ -619,8 +650,8 @@ class _LocationTabState extends State<_LocationTab> {
                       : (_saving ? 'Saving...' : 'Save Location'),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF6F00),
-                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.textOnPrimary,
                 ),
               ),
             ),
@@ -648,21 +679,21 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: Theme.of(context).cardColor,
         title: const Text(
           'Logout All Employees?',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: const Text(
           'This will set all employees\' status to logged out. This action cannot be undone immediately.',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -670,7 +701,7 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
               'Logout All',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.onPrimary),
             ),
           ),
         ],
@@ -718,7 +749,7 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppColors.textPrimary,
             ),
           ),
         ),
@@ -729,14 +760,14 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Colors.white70,
+              color: AppColors.textSecondary,
             ),
           ),
         ),
         Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
           ),
@@ -748,13 +779,13 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Set all employees\' status to logged out. Useful for end-of-day operations or system resets.',
-                style: TextStyle(fontSize: 14, color: Colors.white70),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -772,7 +803,7 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
+                              AppColors.onPrimary,
                             ),
                           ),
                         )
@@ -809,10 +840,10 @@ class _EmployeeCodeCard extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const ListTile(
-            leading: Icon(Icons.vpn_key, color: Colors.white),
+            leading: Icon(Icons.vpn_key, color: AppColors.textPrimary),
             title: Text(
               'Loading employee code...',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.textPrimary),
             ),
           );
         }
@@ -827,7 +858,7 @@ class _EmployeeCodeCard extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Card(
-            color: const Color(0xFF1E1E1E),
+            color: AppColors.cardBackground,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -839,14 +870,14 @@ class _EmployeeCodeCard extends StatelessWidget {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.vpn_key, size: 20, color: Color(0xFFFF6F00)),
+                      Icon(Icons.vpn_key, size: 20, color: AppColors.primary),
                       SizedBox(width: 8),
                       Text(
                         'Employee Join Code',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -854,7 +885,10 @@ class _EmployeeCodeCard extends StatelessWidget {
                   const SizedBox(height: 12),
                   const Text(
                     'Share this code with employees to join your company',
-                    style: TextStyle(fontSize: 13, color: Colors.white60),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Container(
@@ -863,10 +897,10 @@ class _EmployeeCodeCard extends StatelessWidget {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white10,
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: const Color(0xFFFF6F00).withValues(alpha: 0.3),
+                        color: AppColors.primaryLight,
                         width: 1.5,
                       ),
                     ),
@@ -879,14 +913,14 @@ class _EmployeeCodeCard extends StatelessWidget {
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'monospace',
-                            color: Color(0xFFFF6F00),
+                            color: AppColors.primary,
                             letterSpacing: 3,
                           ),
                         ),
                         IconButton(
                           icon: const Icon(
                             Icons.copy,
-                            color: Color(0xFFFF6F00),
+                            color: AppColors.primary,
                           ),
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: adminCode));
@@ -951,15 +985,15 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
       child: Container(
         height: 500,
         decoration: BoxDecoration(
-          color: const Color(0xFF2C2C2C),
+          color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1E1E1E),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundSecondary,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -973,11 +1007,11 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: const Icon(Icons.close, color: AppColors.textPrimary),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -1020,8 +1054,8 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
             ),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1E1E1E),
+              decoration: BoxDecoration(
+                color: AppColors.backgroundSecondary,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
@@ -1033,11 +1067,11 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white54),
+                        side: BorderSide(color: AppColors.border),
                       ),
                       child: const Text(
                         'Cancel',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -1047,13 +1081,13 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                       onPressed: () =>
                           Navigator.pop(context, _selectedPosition),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF6F00),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.onPrimary,
                       ),
                       child: const Text(
                         'Confirm',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.onPrimary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

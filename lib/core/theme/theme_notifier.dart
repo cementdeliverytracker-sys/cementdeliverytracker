@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ThemeNotifier extends ChangeNotifier {
-  bool _isDarkTheme = true;
-  static const String _themeKey = 'isDarkTheme';
+enum AppThemeMode { system, light, dark }
 
-  bool get isDarkTheme => _isDarkTheme;
+class ThemeNotifier extends ChangeNotifier {
+  AppThemeMode _themeMode = AppThemeMode.system;
+  static const String _themeKey = 'themeMode';
+
+  AppThemeMode get themeMode => _themeMode;
+
+  // Legacy compatibility
+  bool get isDarkTheme => _themeMode == AppThemeMode.dark;
 
   ThemeNotifier() {
     _loadTheme();
@@ -13,27 +18,38 @@ class ThemeNotifier extends ChangeNotifier {
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    _isDarkTheme = prefs.getBool(_themeKey) ?? true;
+    final savedMode = prefs.getString(_themeKey);
+
+    if (savedMode != null) {
+      _themeMode = AppThemeMode.values.firstWhere(
+        (mode) => mode.toString() == savedMode,
+        orElse: () => AppThemeMode.system,
+      );
+    }
+
     notifyListeners();
   }
 
-  Future<void> toggleTheme() async {
-    _isDarkTheme = !_isDarkTheme;
-    notifyListeners(); // Update UI immediately
+  Future<void> setThemeMode(AppThemeMode mode) async {
+    if (_themeMode == mode) return;
 
-    // Save to preferences in background
+    _themeMode = mode;
+    notifyListeners();
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_themeKey, _isDarkTheme);
+    await prefs.setString(_themeKey, mode.toString());
   }
 
+  // Legacy compatibility
+  Future<void> toggleTheme() async {
+    final newMode = _themeMode == AppThemeMode.dark
+        ? AppThemeMode.light
+        : AppThemeMode.dark;
+    await setThemeMode(newMode);
+  }
+
+  // Legacy compatibility
   Future<void> setTheme(bool isDark) async {
-    if (_isDarkTheme == isDark) return; // No change needed
-
-    _isDarkTheme = isDark;
-    notifyListeners(); // Update UI immediately
-
-    // Save to preferences in background
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_themeKey, _isDarkTheme);
+    await setThemeMode(isDark ? AppThemeMode.dark : AppThemeMode.light);
   }
 }

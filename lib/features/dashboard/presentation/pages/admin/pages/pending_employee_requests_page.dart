@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_employee_service.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -155,14 +156,14 @@ class _PendingEmployeeRequestsPageState
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                               Text(
                                 email,
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: Colors.white60,
+                                  color: AppColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -176,7 +177,7 @@ class _PendingEmployeeRequestsPageState
                         'Requested: ${requestedAt.toString().split('.')[0]}',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.white54,
+                          color: AppColors.textTertiary,
                         ),
                       ),
                     ],

@@ -78,7 +78,6 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
       body: Stack(
         children: [
           Center(
@@ -154,12 +153,8 @@ class _LoginPageState extends State<LoginPage> {
           if (_isLoading)
             Positioned.fill(
               child: ColoredBox(
-                color: const Color(0xFF1C1C1C),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: const Color(0xFFFF6F00),
-                  ),
-                ),
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Center(child: const CircularProgressIndicator()),
               ),
             ),
         ],

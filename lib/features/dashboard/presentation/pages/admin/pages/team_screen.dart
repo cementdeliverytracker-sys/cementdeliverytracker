@@ -1,6 +1,7 @@
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/employees_tab_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/distributors_page.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,27 +34,27 @@ class _TeamScreenState extends State<TeamScreen>
     final userId = context.read<AuthNotifier>().user?.id;
 
     if (userId == null) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF2C2C2C),
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
           child: Text(
             'No admin user found',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
       );
     }
     return Scaffold(
-      backgroundColor: const Color(0xFF2C2C2C),
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
           Container(
-            color: const Color(0xFF1E1E1E),
+            color: AppColors.backgroundSecondary,
             child: TabBar(
               controller: _tabController,
-              indicatorColor: const Color(0xFFFF6F00),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
+              indicatorColor: AppColors.primary,
+              labelColor: AppColors.textPrimary,
+              unselectedLabelColor: AppColors.textSecondary,
               tabs: const [
                 Tab(text: 'Employees'),
                 Tab(text: 'Distributors'),

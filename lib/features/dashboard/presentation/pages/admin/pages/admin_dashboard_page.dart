@@ -1,3 +1,4 @@
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/dashboard_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/team_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/reports_screen.dart';
@@ -34,69 +35,64 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width > 600;
 
-    return Theme(
-      data: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF2C2C2C),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFF6F00),
-          secondary: Color(0xFFFF6F00),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        actions: _selectedIndex == 3
+            ? null
+            : [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.notifications),
+                ),
+              ],
       ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Admin Dashboard'),
-          actions: _selectedIndex == 3
-              ? null
-              : [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notifications),
+      body: IndexedStack(index: _selectedIndex, children: _screens),
+      bottomNavigationBar: isLargeScreen
+          ? null
+          : BottomNavigationBar(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+              selectedItemColor: AppColors.primary,
+              unselectedItemColor:
+                  Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6) ??
+                  AppColors.textSecondary,
+              items: NavigationMenuConfig.items
+                  .map(
+                    (item) => BottomNavigationBarItem(
+                      icon: Icon(item.icon),
+                      label: item.label,
+                    ),
+                  )
+                  .toList(),
+            ),
+      drawer: isLargeScreen
+          ? Drawer(
+              child: ListView(
+                children: [
+                  const DrawerHeader(
+                    child: Text(
+                      'Admin Dashboard',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ),
+                  ...NavigationMenuConfig.items.map(
+                    (item) => ListTile(
+                      leading: Icon(item.icon),
+                      title: Text(item.label),
+                      onTap: () {
+                        _onItemTapped(item.index);
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
                 ],
-        ),
-        body: IndexedStack(index: _selectedIndex, children: _screens),
-        bottomNavigationBar: isLargeScreen
-            ? null
-            : BottomNavigationBar(
-                currentIndex: _selectedIndex,
-                onTap: _onItemTapped,
-                selectedItemColor: const Color(0xFFFF6F00),
-                unselectedItemColor: Colors.white70,
-                backgroundColor: const Color(0xFF2C2C2C),
-                items: NavigationMenuConfig.items
-                    .map(
-                      (item) => BottomNavigationBarItem(
-                        icon: Icon(item.icon),
-                        label: item.label,
-                      ),
-                    )
-                    .toList(),
               ),
-        drawer: isLargeScreen
-            ? Drawer(
-                child: ListView(
-                  children: [
-                    const DrawerHeader(
-                      child: Text(
-                        'Admin Dashboard',
-                        style: TextStyle(color: Colors.white, fontSize: 24),
-                      ),
-                    ),
-                    ...NavigationMenuConfig.items.map(
-                      (item) => ListTile(
-                        leading: Icon(item.icon, color: Colors.white),
-                        title: Text(item.label),
-                        onTap: () {
-                          _onItemTapped(item.index);
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : null,
-      ),
+            )
+          : null,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/admin_request_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/employee_code_entry_page.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ class RoleSelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -85,7 +85,7 @@ class _RoleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF2C2C2C),
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
@@ -97,10 +97,10 @@ class _RoleCard extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6F00).withValues(alpha: 0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: const Color(0xFFFF6F00), size: 32),
+                child: Icon(icon, color: AppColors.primary, size: 32),
               ),
               const SizedBox(width: 20),
               Expanded(

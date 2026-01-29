@@ -1,3 +1,4 @@
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
@@ -34,7 +35,6 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Employee Dashboard'),
-        backgroundColor: const Color(0xFF1E1E1E),
         actions: [
           IconButton(
             onPressed: () async {
@@ -44,14 +44,17 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF2C2C2C),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        backgroundColor: const Color(0xFF1E1E1E),
-        selectedItemColor: const Color(0xFFFF6F00),
-        unselectedItemColor: Colors.white60,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor:
+            Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6) ??
+            AppColors.textSecondary,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),

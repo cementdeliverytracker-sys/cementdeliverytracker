@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_distributor_service.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
@@ -20,90 +21,166 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
   Widget build(BuildContext context) {
     final adminId = context.read<AuthNotifier>().user?.id;
     if (adminId == null) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF2C2C2C),
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(title: const Text('Distributors')),
         body: Center(
           child: Text(
             'No admin user found',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF2C2C2C),
-      appBar: AppBar(
-        title: const Text('Distributors'),
-        backgroundColor: const Color(0xFF1E1E1E),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openDistributorForm(context, adminId),
-            tooltip: 'Add Distributor',
-          ),
-        ],
-      ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(title: const Text('Distributors')),
       body: Padding(
-        padding: const EdgeInsets.all(AppConstants.defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.only(
+          left: AppConstants.defaultPadding,
+          right: AppConstants.defaultPadding,
+          top: AppConstants.defaultPadding,
+          bottom: 90,
+        ),
+        child: ListView(
           children: [
-            Expanded(
-              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: _service.getDistributorsStream(adminId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const LoadingState();
-                  }
-                  if (snapshot.hasError) {
-                    return ErrorState(
-                      message: 'Failed to load distributors: ${snapshot.error}',
-                    );
-                  }
-                  final docs = snapshot.data?.docs ?? [];
-                  if (docs.isEmpty) {
-                    return const EmptyState(
-                      message: 'No distributors yet',
-                      icon: Icons.storefront_outlined,
-                    );
-                  }
-                  return ListView.separated(
-                    itemCount: docs.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final doc = docs[index];
-                      final data = doc.data();
-                      return DashboardCard(
-                        child: ListTile(
-                          leading: const Icon(
-                            Icons.storefront,
-                            color: Colors.white,
-                          ),
-                          title: Text(
-                            data['name'] ?? 'No name',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          subtitle: Text(
-                            (data['region'] ?? 'No region') as String,
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.white70,
-                          ),
-                          onTap: () => _openDistributorDetail(
-                            context,
-                            adminId,
-                            doc.id,
-                            data,
+            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: _service.getDistributorsStream(adminId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return DashboardCard(
+                    onTap: null,
+                    child: Row(
+                      children: const [
+                        SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Loading distributors...',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
                           ),
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   );
-                },
-              ),
+                }
+
+                if (snapshot.hasError) {
+                  return DashboardCard(
+                    onTap: null,
+                    child: Text(
+                      'Failed to load distributors: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.redAccent),
+                    ),
+                  );
+                }
+
+                final docs = snapshot.data?.docs ?? [];
+                final distributorCount = docs.length;
+
+                return Column(
+                  children: [
+                    DashboardCard(
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 48,
+                            width: 48,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.storefront,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total Distributors',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.color,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '$distributorCount distributor${distributorCount != 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (docs.isEmpty)
+                      const EmptyState(
+                        message: 'No distributors yet',
+                        icon: Icons.storefront_outlined,
+                      )
+                    else
+                      ...docs.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final doc = entry.value;
+                        final data = doc.data();
+                        return Column(
+                          children: [
+                            DashboardCard(
+                              child: ListTile(
+                                leading: const Icon(
+                                  Icons.storefront,
+                                  color: AppColors.primary,
+                                ),
+                                title: Text(
+                                  data['name'] ?? 'No name',
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  (data['region'] ?? 'No region') as String,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                trailing: const Icon(
+                                  Icons.chevron_right,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onTap: () => _openDistributorDetail(
+                                  context,
+                                  adminId,
+                                  doc.id,
+                                  data,
+                                ),
+                              ),
+                            ),
+                            if (index < docs.length - 1)
+                              const SizedBox(height: 8),
+                          ],
+                        );
+                      }).toList(),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -127,7 +204,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -147,7 +224,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
               Text(
                 docId == null ? 'Add Distributor' : 'Edit Distributor',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
@@ -155,27 +232,51 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Name required' : null,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: phoneCtrl,
-                decoration: const InputDecoration(labelText: 'Phone number'),
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Phone number',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.phone,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.emailAddress,
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: locationCtrl,
-                decoration: const InputDecoration(labelText: 'Location'),
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Location',
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: regionCtrl,
-                decoration: const InputDecoration(labelText: 'Assigned region'),
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Assigned region',
+                  border: OutlineInputBorder(),
+                ),
               ),
               const SizedBox(height: 16),
               Row(
@@ -229,7 +330,8 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
   ) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -242,7 +344,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
             Text(
               data['name'] ?? 'Distributor',
               style: const TextStyle(
-                color: Colors.white,
+                color: AppColors.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
               ),
@@ -293,14 +395,14 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
           Text(
             '$label: ',
             style: const TextStyle(
-              color: Colors.white70,
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
           ),
           Flexible(
             child: Text(
               (value ?? 'N/A').toString(),
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppColors.textPrimary),
             ),
           ),
         ],

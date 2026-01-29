@@ -1,5 +1,4 @@
 import 'package:cementdeliverytracker/core/network/network_info.dart';
-import 'package:cementdeliverytracker/core/theme/theme_notifier.dart';
 import 'package:cementdeliverytracker/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:cementdeliverytracker/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:cementdeliverytracker/features/auth/domain/repositories/auth_repository.dart';
@@ -134,7 +133,6 @@ class DependencyInjection {
       ChangeNotifierProvider<AuthNotifier>.value(value: authNotifier),
       ChangeNotifierProvider<DashboardProvider>.value(value: dashboardProvider),
       ChangeNotifierProvider<OrdersProvider>.value(value: ordersProvider),
-      ChangeNotifierProvider<ThemeNotifier>(create: (_) => ThemeNotifier()),
     ];
   }
 }

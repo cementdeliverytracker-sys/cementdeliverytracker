@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/distributors_page.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/employees_tab_page.dart';
@@ -143,7 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     children: [
                       Card(
-                        color: const Color(0xFF1E1E1E),
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             AppConstants.defaultBorderRadius,
@@ -167,13 +168,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           logoUrl,
                                           fit: BoxFit.cover,
                                         )
-                                      : const DecoratedBox(
+                                      : DecoratedBox(
                                           decoration: BoxDecoration(
-                                            color: Colors.white10,
+                                            color:
+                                                Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? AppColors.darkInputBackground
+                                                : AppColors.inputBackground,
                                           ),
                                           child: Icon(
                                             Icons.business,
-                                            color: Colors.white54,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodySmall?.color ??
+                                                AppColors.textTertiary,
                                           ),
                                         ),
                                 ),
@@ -186,37 +195,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Text(
                                       (name.isEmpty ? 'Enterprise' : name)
                                           .toUpperCase(),
-                                      style: const TextStyle(
-                                        color: Color.fromARGB(
-                                          255,
-                                          241,
-                                          241,
-                                          238,
-                                        ),
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge?.color ??
+                                            AppColors.textPrimary,
                                         fontSize: 26,
                                         fontWeight: FontWeight.w900,
                                         letterSpacing: 2.0,
                                         height: 1.2,
                                         shadows: [
                                           Shadow(
-                                            offset: Offset(2, 2),
-                                            blurRadius: 4,
-                                            color: Color(0x88000000),
-                                          ),
-                                          Shadow(
-                                            offset: Offset(4, 4),
-                                            blurRadius: 8,
-                                            color: Color(0x55000000),
-                                          ),
-                                          Shadow(
-                                            offset: Offset(-1, -1),
+                                            offset: const Offset(0, 1),
                                             blurRadius: 2,
-                                            color: Color(0x44FFFFFF),
+                                            color: Theme.of(context).shadowColor
+                                                .withValues(alpha: 0.13),
                                           ),
                                           Shadow(
-                                            offset: Offset(6, 6),
-                                            blurRadius: 12,
-                                            color: Color(0xAAFF6F00),
+                                            offset: const Offset(0, 2),
+                                            blurRadius: 8,
+                                            color: AppColors.primaryLight,
                                           ),
                                         ],
                                       ),
@@ -228,13 +227,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           const Icon(
                                             Icons.category_outlined,
                                             size: 16,
-                                            color: Color(0xFFFF6F00),
+                                            color: AppColors.primary,
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
                                             category,
                                             style: const TextStyle(
-                                              color: Color(0xFFFF6F00),
+                                              color: AppColors.primary,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               letterSpacing: 0.5,
@@ -270,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 520),
                 child: Card(
-                  color: const Color(0xFF1E1E1E),
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                       AppConstants.defaultBorderRadius,
@@ -289,7 +288,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: Colors.black87,
                             ),
                           ),
                           const SizedBox(height: 16),
@@ -334,7 +333,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             children: [
                               CircleAvatar(
                                 radius: 28,
-                                backgroundColor: Colors.white10,
+                                backgroundColor:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.white10
+                                    : Colors.black.withValues(alpha: 0.05),
                                 backgroundImage: _pickedLogo != null
                                     ? FileImage(File(_pickedLogo!.path))
                                     : null,
@@ -418,7 +421,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           },
           child: Card(
-            color: const Color(0xFF1E1E1E),
+            color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
                 AppConstants.defaultBorderRadius,
@@ -436,12 +439,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         height: 48,
                         width: 48,
                         decoration: BoxDecoration(
-                          color: const Color(0x33FF6F00),
+                          color: AppColors.primaryLight,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
                           Icons.people,
-                          color: Color(0xFFFF6F00),
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -453,7 +456,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -461,7 +464,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Total: $totalEmployees employees',
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.white70,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -533,7 +536,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (snapshot.hasError) {
           // Debug: Show error if there's an issue
           return Card(
-            color: const Color(0xFF1E1E1E),
+            color: Theme.of(context).cardColor,
             child: Padding(
               padding: const EdgeInsets.all(AppConstants.defaultPadding),
               child: Text(
@@ -554,7 +557,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           },
           child: Card(
-            color: const Color(0xFF1E1E1E),
+            color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
                 AppConstants.defaultBorderRadius,
@@ -572,12 +575,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         height: 48,
                         width: 48,
                         decoration: BoxDecoration(
-                          color: const Color(0x33FF6F00),
+                          color: AppColors.primaryLight,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
                           Icons.local_shipping,
-                          color: Color(0xFFFF6F00),
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -589,7 +592,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: AppColors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -597,7 +600,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             'Total: $totalDealers dealers',
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Colors.white70,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -614,7 +617,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0x33FF6F00),
+                          color: AppColors.primaryLight,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -622,13 +625,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const Icon(
                               Icons.location_on_outlined,
                               size: 16,
-                              color: Color(0xFFFF6F00),
+                              color: AppColors.primary,
                             ),
                             const SizedBox(width: 8),
                             Text(
                               '$totalDealers Active',
                               style: const TextStyle(
-                                color: Color(0xFFFF6F00),
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
@@ -656,7 +659,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // TODO: Navigate to Pending Orders screen when implemented
       },
       child: Card(
-        color: const Color(0xFF1E1E1E),
+        color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
         ),
@@ -672,12 +675,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     height: 48,
                     width: 48,
                     decoration: BoxDecoration(
-                      color: const Color(0x33FF6F00),
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
                       Icons.shopping_cart,
-                      color: Color(0xFFFF6F00),
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -689,7 +692,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -697,7 +700,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         'Total: $totalPendingOrders orders',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Colors.white70,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -714,7 +717,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0x33FF6F00),
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -722,13 +725,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const Icon(
                           Icons.pending_actions,
                           size: 16,
-                          color: Color(0xFFFF6F00),
+                          color: AppColors.primary,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           '$totalPendingOrders Pending',
                           style: const TextStyle(
-                            color: Color(0xFFFF6F00),
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                           ),

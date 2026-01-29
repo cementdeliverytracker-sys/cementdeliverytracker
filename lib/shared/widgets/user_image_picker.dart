@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
+
 class UserImagePicker extends StatefulWidget {
   const UserImagePicker({super.key, required this.onPickImage});
 
@@ -39,7 +41,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
       children: [
         CircleAvatar(
           radius: 40,
-          backgroundColor: Colors.grey,
+          backgroundColor: AppColors.neutral,
           foregroundImage: _pickedImageFile != null
               ? FileImage(_pickedImageFile!)
               : null,

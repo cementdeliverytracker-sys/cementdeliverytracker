@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/data/services/attendance_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,7 +28,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       return const Center(
         child: Text(
           'User not authenticated',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
       );
     }
@@ -50,32 +51,32 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Welcome, Employee',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 DateFormat('MMMM d, yyyy').format(DateTime.now()),
-                style: const TextStyle(fontSize: 14, color: Colors.white60),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Daily Check-in',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Today\'s Attendance',
-                style: TextStyle(fontSize: 14, color: Colors.white60),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 24),
 
@@ -83,12 +84,12 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: hasLoggedInToday
                         ? Colors.green
-                        : Colors.orange.withOpacity(0.5),
+                        : Colors.orange.withValues(alpha: 0.5),
                     width: 2,
                   ),
                 ),
@@ -98,9 +99,15 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Status',
-                          style: TextStyle(fontSize: 16, color: Colors.white60),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color
+                                    ?.withValues(alpha: 0.7) ??
+                                AppColors.textSecondary,
+                          ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -109,8 +116,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: hasLoggedInToday
-                                ? Colors.green.withOpacity(0.2)
-                                : Colors.orange.withOpacity(0.2),
+                                ? Colors.green.withValues(alpha: 0.2)
+                                : Colors.orange.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -129,21 +136,35 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                     if (todayLoginTime != null) ...[
                       Text(
                         'Login Time',
-                        style: TextStyle(fontSize: 14, color: Colors.white60),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color
+                                  ?.withValues(alpha: 0.7) ??
+                              AppColors.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         DateFormat('hh:mm a').format(todayLoginTime),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color:
+                              Theme.of(context).textTheme.bodyLarge?.color ??
+                              AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         DateFormat('MMMM d, yyyy').format(todayLoginTime),
-                        style: TextStyle(fontSize: 12, color: Colors.white60),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color
+                                  ?.withValues(alpha: 0.7) ??
+                              AppColors.textSecondary,
+                        ),
                       ),
                     ] else if (hasLoggedInToday)
                       Text(
@@ -153,7 +174,13 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                     else
                       Text(
                         'You haven\'t logged in today yet',
-                        style: TextStyle(fontSize: 14, color: Colors.white60),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color:
+                              Theme.of(context).textTheme.bodyMedium?.color
+                                  ?.withValues(alpha: 0.7) ??
+                              AppColors.textSecondary,
+                        ),
                       ),
                   ],
                 ),
@@ -190,7 +217,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: hasLoggedInToday
                         ? Colors.grey
-                        : const Color(0xFFFF6F00),
+                        : AppColors.primary,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey,
                   ),
@@ -384,7 +411,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.white10),
               ),

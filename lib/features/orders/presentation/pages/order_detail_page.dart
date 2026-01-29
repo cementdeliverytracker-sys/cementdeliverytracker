@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart';
@@ -224,9 +225,9 @@ class OrderDetailPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF6F00).withValues(alpha: 0.1),
+                color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFF6F00), width: 2),
+                border: Border.all(color: AppColors.primary, width: 2),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,7 +237,7 @@ class OrderDetailPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   Text(
@@ -244,7 +245,7 @@ class OrderDetailPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFFF6F00),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -258,12 +259,15 @@ class OrderDetailPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E1E),
+                  color: AppColors.backgroundSecondary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   order.notes!,
-                  style: const TextStyle(fontSize: 14, color: Colors.white70),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ],
@@ -303,10 +307,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
       ),
     );
   }
@@ -330,7 +334,7 @@ class _InfoTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: const Color(0xFFFF6F00)),
+          Icon(icon, size: 20, color: AppColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -340,14 +344,17 @@ class _InfoTile extends StatelessWidget {
                   label,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Colors.white54,
+                    color: AppColors.textTertiary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),

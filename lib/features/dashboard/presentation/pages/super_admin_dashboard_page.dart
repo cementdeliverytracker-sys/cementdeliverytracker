@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
@@ -140,7 +141,7 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                                       as Timestamp?;
 
                               return Card(
-                                color: const Color(0xFF1E1E1E),
+                                color: Theme.of(context).cardColor,
                                 margin: const EdgeInsets.only(bottom: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -305,7 +306,7 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: const Color(0xFFFF6F00)),
+        Icon(icon, size: 16, color: AppColors.primary),
         const SizedBox(width: 8),
         Expanded(
           child: Column(

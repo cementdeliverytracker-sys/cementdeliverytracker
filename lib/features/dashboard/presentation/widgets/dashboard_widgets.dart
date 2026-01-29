@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 
 /// Reusable card widget for dashboard items
 class DashboardCard extends StatelessWidget {
@@ -19,7 +20,7 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: backgroundColor ?? const Color(0xFF1E1E1E),
+      color: backgroundColor ?? AppColors.cardBackground,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
       ),
@@ -61,10 +62,10 @@ class FixedBottomButton extends StatelessWidget {
       bottom: 0,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF2C2C2C),
+          color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -77,8 +78,8 @@ class FixedBottomButton extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: backgroundColor ?? const Color(0xFFFF6F00),
-              foregroundColor: textColor ?? Colors.white,
+              backgroundColor: backgroundColor ?? AppColors.primary,
+              foregroundColor: textColor ?? AppColors.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             icon: Icon(icon, size: 20),
@@ -104,7 +105,7 @@ class UserAvatar extends StatelessWidget {
     required this.name,
     this.radius = 24,
     this.backgroundColor,
-    this.textColor = Colors.white,
+    this.textColor = AppColors.onPrimary,
     super.key,
   });
 
@@ -112,7 +113,7 @@ class UserAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: backgroundColor ?? const Color(0xFFFF6F00),
+      backgroundColor: backgroundColor ?? AppColors.primary,
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '?',
         style: TextStyle(
@@ -152,7 +153,7 @@ class ErrorState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AppColors.textPrimary),
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...[
@@ -225,14 +226,17 @@ class DetailRow extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                color: Colors.white70,
+                color: AppColors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(value, style: const TextStyle(color: Colors.white)),
+            child: Text(
+              value,
+              style: const TextStyle(color: AppColors.textPrimary),
+            ),
           ),
         ],
       ),
@@ -273,8 +277,8 @@ class ActionButtonsRow extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: onApprove,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFF6F00),
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.primary,
+            foregroundColor: AppColors.onPrimary,
           ),
           icon: const Icon(Icons.check_circle, size: 18),
           label: Text(approveLabel),

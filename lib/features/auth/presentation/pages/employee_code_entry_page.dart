@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/pending_approval_page.dart';
@@ -78,11 +79,7 @@ class _EmployeeCodeEntryPageState extends State<EmployeeCodeEntryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C1C),
-      appBar: AppBar(
-        title: const Text('Join as Employee'),
-        backgroundColor: const Color(0xFF2C2C2C),
-      ),
+      appBar: AppBar(title: const Text('Join as Employee')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -92,7 +89,7 @@ class _EmployeeCodeEntryPageState extends State<EmployeeCodeEntryPage> {
               const Icon(
                 Icons.vpn_key_outlined,
                 size: 80,
-                color: Color(0xFFFF6F00),
+                color: AppColors.primary,
               ),
               const SizedBox(height: 24),
               const Text(

@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
@@ -118,7 +119,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -162,7 +163,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -232,11 +233,9 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF6F00).withValues(alpha: 0.1),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0xFFFF6F00).withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: AppColors.primaryLight),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -246,7 +245,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
@@ -254,7 +253,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFFF6F00),
+                        color: AppColors.primary,
                       ),
                     ),
                   ],
@@ -284,8 +283,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                       : const Icon(Icons.check_circle),
                   label: Text(_saving ? 'Creating...' : 'Create Order'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6F00),
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
                   ),
                 ),
               ),
