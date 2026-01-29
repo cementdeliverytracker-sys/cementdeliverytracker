@@ -89,7 +89,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                   border: Border.all(
                     color: hasLoggedInToday
                         ? Colors.green
-                        : Colors.orange.withValues(alpha: 0.5),
+                        : Colors.orange.withValues(alpha:  0.5),
                     width: 2,
                   ),
                 ),
@@ -105,7 +105,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                             fontSize: 16,
                             color:
                                 Theme.of(context).textTheme.bodyMedium?.color
-                                    ?.withValues(alpha: 0.7) ??
+                                    ?.withValues(alpha:  0.7) ??
                                 AppColors.textSecondary,
                           ),
                         ),
@@ -116,8 +116,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: hasLoggedInToday
-                                ? Colors.green.withValues(alpha: 0.2)
-                                : Colors.orange.withValues(alpha: 0.2),
+                                ? Colors.green.withValues(alpha:  0.2)
+                                : Colors.orange.withValues(alpha:  0.2),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -140,7 +140,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           fontSize: 14,
                           color:
                               Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha: 0.7) ??
+                                  ?.withValues(alpha:  0.7) ??
                               AppColors.textSecondary,
                         ),
                       ),
@@ -162,7 +162,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           fontSize: 12,
                           color:
                               Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha: 0.7) ??
+                                  ?.withValues(alpha:  0.7) ??
                               AppColors.textSecondary,
                         ),
                       ),
@@ -178,7 +178,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           fontSize: 14,
                           color:
                               Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha: 0.7) ??
+                                  ?.withValues(alpha:  0.7) ??
                               AppColors.textSecondary,
                         ),
                       ),
@@ -229,8 +229,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Row(
@@ -436,7 +436,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(

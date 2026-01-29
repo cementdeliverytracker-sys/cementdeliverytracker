@@ -110,8 +110,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final userId = context.read<AuthNotifier>().user?.id;
 
     if (userId == null) {
-      return const Center(
-        child: Text('No user found', style: TextStyle(color: Colors.white70)),
+      return Center(
+        child: Text(
+          'No user found',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+          ),
+        ),
       );
     }
 
@@ -144,7 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     children: [
                       Card(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             AppConstants.defaultBorderRadius,
@@ -210,7 +217,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             offset: const Offset(0, 1),
                                             blurRadius: 2,
                                             color: Theme.of(context).shadowColor
-                                                .withValues(alpha: 0.13),
+                                                .withValues(alpha:  0.13),
                                           ),
                                           Shadow(
                                             offset: const Offset(0, 2),
@@ -269,7 +276,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 520),
                 child: Card(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                       AppConstants.defaultBorderRadius,
@@ -283,13 +290,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
+                          Text(
                             'Set up your enterprise',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
@@ -337,7 +344,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Theme.of(context).brightness ==
                                         Brightness.dark
                                     ? Colors.white10
-                                    : Colors.black.withValues(alpha: 0.05),
+                                    : Colors.black.withValues(alpha:  0.05),
                                 backgroundImage: _pickedLogo != null
                                     ? FileImage(File(_pickedLogo!.path))
                                     : null,
@@ -421,7 +428,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           },
           child: Card(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
                 AppConstants.defaultBorderRadius,
@@ -451,21 +458,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Employee Info',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Total: $totalEmployees employees',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -557,7 +558,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           },
           child: Card(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(
                 AppConstants.defaultBorderRadius,
@@ -587,21 +588,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Dealer Info',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Total: $totalDealers dealers',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textSecondary,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -659,7 +654,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // TODO: Navigate to Pending Orders screen when implemented
       },
       child: Card(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
         ),
@@ -687,21 +682,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Pending Orders',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Total: $totalPendingOrders orders',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),

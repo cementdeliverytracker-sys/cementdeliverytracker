@@ -39,22 +39,28 @@ class _TeamScreenState extends State<TeamScreen>
         body: Center(
           child: Text(
             'No admin user found',
-            style: TextStyle(color: AppColors.textSecondary),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+            ),
           ),
         ),
       );
     }
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           Container(
-            color: AppColors.backgroundSecondary,
+            color: Theme.of(context).colorScheme.surface,
             child: TabBar(
               controller: _tabController,
               indicatorColor: AppColors.primary,
-              labelColor: AppColors.textPrimary,
-              unselectedLabelColor: AppColors.textSecondary,
+              labelColor: Theme.of(context).textTheme.bodyMedium?.color,
+              unselectedLabelColor: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
               tabs: const [
                 Tab(text: 'Employees'),
                 Tab(text: 'Distributors'),

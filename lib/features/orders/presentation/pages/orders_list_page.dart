@@ -63,7 +63,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
                   const SizedBox(height: 16),
                   Text(
                     ordersProvider.errorMessage ?? 'An error occurred',
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
@@ -83,14 +83,14 @@ class _OrdersListPageState extends State<OrdersListPage> {
                   Icon(
                     Icons.inbox_outlined,
                     size: 64,
-                    color: AppColors.textTertiary,
+                    color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No orders yet',
                     style: TextStyle(
                       fontSize: 18,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).textTheme.bodyMedium?.color,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -98,7 +98,7 @@ class _OrdersListPageState extends State<OrdersListPage> {
                     'Create your first order to get started',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textTertiary,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
                     ),
                   ),
                 ],
@@ -167,7 +167,7 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: AppColors.cardBackground,
+      color: Theme.of(context).cardColor,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
@@ -188,7 +188,6 @@ class _OrderCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -198,7 +197,7 @@ class _OrderCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor().withValues(alpha: 0.2),
+                      color: _getStatusColor().withValues(alpha:  0.2),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: _getStatusColor(), width: 1),
                     ),
@@ -216,37 +215,23 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(
-                    Icons.phone,
-                    size: 14,
-                    color: AppColors.textSecondary,
-                  ),
+                  const Icon(Icons.phone, size: 14),
                   const SizedBox(width: 6),
                   Text(
                     order.customerPhone,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                    ),
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(
-                    Icons.location_on,
-                    size: 14,
-                    color: AppColors.textSecondary,
-                  ),
+                  const Icon(Icons.location_on, size: 14),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       order.deliveryAddress,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                      ),
+                      style: const TextStyle(fontSize: 14),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -254,7 +239,7 @@ class _OrderCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              const Divider(color: AppColors.divider),
+              Divider(color: Theme.of(context).dividerColor),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,10 +258,7 @@ class _OrderCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         '${order.quantity} bags',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textTertiary,
-                        ),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
@@ -285,7 +267,6 @@ class _OrderCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
                     ),
                   ),
                 ],

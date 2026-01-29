@@ -209,7 +209,7 @@ class AppColors {
 
   /// Get opacity variant of a color
   static Color withOpacity(Color color, double opacity) {
-    return color.withValues(alpha: opacity);
+    return color.withValues(alpha:  opacity);
   }
 
   /// Get a darker variant of a color

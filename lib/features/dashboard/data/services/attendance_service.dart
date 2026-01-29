@@ -4,7 +4,7 @@ import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 
 class AttendanceService {
   static const double _maxDistanceMeters = 100;
-  static const String _istTimezone = 'IST';
+  // Note: IST timezone offset is +5:30, handled directly in time calculations
 
   /// Get today's date in IST timezone
   static DateTime _getISTToday() {

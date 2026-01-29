@@ -153,18 +153,17 @@ class _PendingEmployeeRequestsPageState
                             children: [
                               Text(
                                 username,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                ),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18,
+                                    ),
                               ),
                               Text(
                                 email,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                ),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.copyWith(fontSize: 14),
                               ),
                             ],
                           ),
@@ -175,10 +174,9 @@ class _PendingEmployeeRequestsPageState
                       const SizedBox(height: 12),
                       Text(
                         'Requested: ${requestedAt.toString().split('.')[0]}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textTertiary,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(fontSize: 12),
                       ),
                     ],
                     const SizedBox(height: 16),

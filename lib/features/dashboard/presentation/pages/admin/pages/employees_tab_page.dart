@@ -27,12 +27,10 @@ class EmployeesTabPage extends StatelessWidget {
           child: ListView(
             children: [
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Employees',
-                style: TextStyle(
-                  fontSize: 24,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -50,13 +48,7 @@ class EmployeesTabPage extends StatelessWidget {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                           SizedBox(width: 12),
-                          Text(
-                            'Loading employees...',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 14,
-                            ),
-                          ),
+                          Text('Loading employees...'),
                         ],
                       ),
                     );
@@ -102,29 +94,22 @@ class EmployeesTabPage extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Employees',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '$memberCount approved',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: 6),
-                            const Text(
+                            Text(
                               'Tap to view list',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textTertiary,
-                              ),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(fontSize: 12),
                             ),
                           ],
                         ),
@@ -151,7 +136,7 @@ class EmployeesTabPage extends StatelessWidget {
                     BoxShadow(
                       color: Theme.of(
                         context,
-                      ).shadowColor.withValues(alpha: 0.3),
+                      ).shadowColor.withValues(alpha:  0.3),
                       blurRadius: 8,
                       offset: const Offset(0, -2),
                     ),
@@ -290,19 +275,11 @@ class _EmployeesListFullPageState extends State<EmployeesListFullPage> {
                   children: [
                     Text(
                       name,
-                      style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 18,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    Text(
-                      role,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text(role, style: Theme.of(ctx).textTheme.bodySmall),
                   ],
                 ),
               ],
@@ -416,10 +393,7 @@ class EmployeeCard extends StatelessWidget {
         title: Row(
           children: [
             Expanded(
-              child: Text(
-                name,
-                style: const TextStyle(color: AppColors.textPrimary),
-              ),
+              child: Text(name, style: Theme.of(context).textTheme.bodyLarge),
             ),
             Container(
               width: 10,
@@ -434,11 +408,11 @@ class EmployeeCard extends StatelessWidget {
         ),
         subtitle: Text(
           '$email • $phone',
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
-        trailing: const Icon(
+        trailing: Icon(
           Icons.chevron_right,
-          color: AppColors.textSecondary,
+          color: Theme.of(context).iconTheme.color,
         ),
         onTap: onTap,
       ),

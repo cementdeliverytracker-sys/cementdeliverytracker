@@ -20,7 +20,7 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: backgroundColor ?? AppColors.cardBackground,
+      color: backgroundColor ?? Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
       ),
@@ -65,7 +65,7 @@ class FixedBottomButton extends StatelessWidget {
           color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
+              color: Theme.of(context).shadowColor.withValues(alpha:  0.3),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -153,7 +153,7 @@ class ErrorState extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
           ),
           if (onRetry != null) ...[
@@ -185,13 +185,19 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.white.withValues(alpha: 0.3)),
+          Icon(
+            icon,
+            size: 64,
+            color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: 16),
           Text(
             message,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 18,
-              color: Colors.white.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
             ),
           ),
           if (action != null) ...[const SizedBox(height: 24), action!],
@@ -225,18 +231,14 @@ class DetailRow extends StatelessWidget {
             width: labelWidth,
             child: Text(
               label,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(color: AppColors.textPrimary),
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ],
       ),

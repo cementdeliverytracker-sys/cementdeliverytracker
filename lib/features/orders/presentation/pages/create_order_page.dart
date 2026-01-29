@@ -114,12 +114,11 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Customer Details',
-                style: TextStyle(
-                  fontSize: 18,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(height: 16),
@@ -158,12 +157,11 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                     : null,
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Order Details',
-                style: TextStyle(
-                  fontSize: 18,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(height: 16),
@@ -240,12 +238,11 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Total Amount:',
-                      style: TextStyle(
-                        fontSize: 18,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        fontSize: 18,
                       ),
                     ),
                     Text(

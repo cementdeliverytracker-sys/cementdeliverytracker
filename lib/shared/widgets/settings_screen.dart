@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                    ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -83,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   labelColor: AppColors.primary,
                   unselectedLabelColor: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.color?.withOpacity(0.6),
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
                   tabs: const [
                     Tab(text: 'General'),
                     Tab(text: 'Location'),
@@ -180,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               onChanged: (bool value) {
                 themeProvider.toggleTheme();
               },
-              activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
+              activeTrackColor: AppColors.primary.withValues(alpha:  0.5),
             );
           },
         ),
@@ -278,10 +278,10 @@ class _LocationTabState extends State<_LocationTab> {
 
   Future<void> _loadLocationData() async {
     if (!mounted) return;
-    
+
     try {
       setState(() => _isLoading = true);
-      
+
       final doc = await FirebaseFirestore.instance
           .collection(AppConstants.enterprisesCollection)
           .doc(widget.userId)
@@ -467,11 +467,9 @@ class _LocationTabState extends State<_LocationTab> {
             Text(
               'Loading location...',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.color
-                    ?.withOpacity(0.7),
+                color: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -486,12 +484,11 @@ class _LocationTabState extends State<_LocationTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Enterprise Location',
-              style: TextStyle(
-                fontSize: 20,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                fontSize: 20,
               ),
             ),
             const SizedBox(height: 8),
@@ -500,7 +497,7 @@ class _LocationTabState extends State<_LocationTab> {
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.2),
+                  color: Colors.green.withValues(alpha: 0.2),
                   border: Border.all(color: Colors.green),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -518,15 +515,15 @@ class _LocationTabState extends State<_LocationTab> {
                 ),
               )
             else
-              const Text(
+              Text(
                 'Set your business location for better service management',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _addressCtrl,
               enabled: !_locationSet,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: Theme.of(context).textTheme.bodyMedium,
               decoration: const InputDecoration(
                 labelText: 'Street Address',
                 hintText: 'e.g., 123 Main Street',
@@ -542,7 +539,7 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _cityCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration(
                       labelText: 'City',
                       hintText: 'e.g., Mumbai',
@@ -561,7 +558,7 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _stateCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration(
                       labelText: 'State',
                       hintText: 'e.g., Maharashtra',
@@ -581,7 +578,7 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _zipCodeCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration(
                       labelText: 'ZIP Code',
                       hintText: 'e.g., 400001',
@@ -601,7 +598,7 @@ class _LocationTabState extends State<_LocationTab> {
                   child: TextFormField(
                     controller: _countryCtrl,
                     enabled: !_locationSet,
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     decoration: const InputDecoration(
                       labelText: 'Country',
                       hintText: 'e.g., India',
@@ -680,20 +677,20 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).cardColor,
-        title: const Text(
+        title: Text(
           'Logout All Employees?',
-          style: TextStyle(color: AppColors.textPrimary),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        content: const Text(
+        content: Text(
           'This will set all employees\' status to logged out. This action cannot be undone immediately.',
-          style: TextStyle(color: AppColors.textSecondary),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
           ElevatedButton(
@@ -742,50 +739,44 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        const Padding(
-          padding: EdgeInsets.only(bottom: 16.0),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
           child: Text(
             'Employee Management',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(bottom: 16.0),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
           child: Text(
             'Quick Actions',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: AppColors.cardBackground,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+            border: Border.all(color: Colors.redAccent.withValues(alpha:  0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Logout All Employees',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Set all employees\' status to logged out. Useful for end-of-day operations or system resets.',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -839,11 +830,14 @@ class _EmployeeCodeCard extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const ListTile(
-            leading: Icon(Icons.vpn_key, color: AppColors.textPrimary),
+          return ListTile(
+            leading: Icon(
+              Icons.vpn_key,
+              color: Theme.of(context).iconTheme.color,
+            ),
             title: Text(
               'Loading employee code...',
-              style: TextStyle(color: AppColors.textPrimary),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           );
         }
@@ -858,7 +852,7 @@ class _EmployeeCodeCard extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Card(
-            color: AppColors.cardBackground,
+            color: Theme.of(context).cardColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -868,27 +862,26 @@ class _EmployeeCodeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.vpn_key, size: 20, color: AppColors.primary),
-                      SizedBox(width: 8),
+                      const Icon(
+                        Icons.vpn_key,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 8),
                       Text(
                         'Employee Join Code',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
+                  Text(
                     'Share this code with employees to join your company',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 12),
                   Container(
@@ -957,7 +950,7 @@ class _MapPickerDialog extends StatefulWidget {
 
 class _MapPickerDialogState extends State<_MapPickerDialog> {
   late LatLng _selectedPosition;
-  GoogleMapController? _mapController;
+  // Note: Google Maps Controller not needed for read-only map display
   final Set<Marker> _markers = {};
 
   @override
@@ -985,7 +978,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
       child: Container(
         height: 500,
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -993,7 +986,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.backgroundSecondary,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -1002,16 +995,17 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Pick Location',
-                    style: TextStyle(
-                      fontSize: 18,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textPrimary),
+                    icon: Icon(
+                      Icons.close,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -1026,7 +1020,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                   ),
                   markers: _markers,
                   onMapCreated: (controller) {
-                    _mapController = controller;
+                    // Map controller not needed for read-only selection
                   },
                   onTap: (position) {
                     setState(() {
@@ -1055,7 +1049,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.backgroundSecondary,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(16),
                   bottomRight: Radius.circular(16),
@@ -1069,9 +1063,9 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: AppColors.border),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Cancel',
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   ),

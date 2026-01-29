@@ -53,7 +53,7 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
         unselectedItemColor:
             Theme.of(
               context,
-            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6) ??
+            ).textTheme.bodyMedium?.color?.withValues(alpha:  0.6) ??
             AppColors.textSecondary,
         items: const [
           BottomNavigationBarItem(

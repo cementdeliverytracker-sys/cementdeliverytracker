@@ -218,18 +218,18 @@ class AppTheme {
 
       // Checkbox Theme
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStatePropertyAll(AppColors.primary),
-        checkColor: const MaterialStatePropertyAll(AppColors.textOnPrimary),
+        fillColor: WidgetStatePropertyAll(AppColors.primary),
+        checkColor: const WidgetStatePropertyAll(AppColors.textOnPrimary),
       ),
 
       // Radio Theme
       radioTheme: RadioThemeData(
-        fillColor: MaterialStatePropertyAll(AppColors.primary),
+        fillColor: WidgetStatePropertyAll(AppColors.primary),
       ),
 
       // Switch Theme
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStatePropertyAll(AppColors.primary),
+        thumbColor: WidgetStatePropertyAll(AppColors.primary),
       ),
 
       // Progress Indicator Theme

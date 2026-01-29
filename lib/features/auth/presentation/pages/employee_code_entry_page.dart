@@ -159,7 +159,7 @@ class _EmployeeCodeEntryPageState extends State<EmployeeCodeEntryPage> {
                           'Note: You will be added to your admin\'s team once the code is verified.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: Colors.white.withValues(alpha:  0.5),
                             fontSize: 12,
                           ),
                         ),

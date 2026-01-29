@@ -27,7 +27,11 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
         body: Center(
           child: Text(
             'No admin user found',
-            style: TextStyle(color: AppColors.textSecondary),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+            ),
           ),
         ),
       );
@@ -36,6 +40,13 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Distributors')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _openDistributorForm(context, adminId),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+        icon: const Icon(Icons.add),
+        label: const Text('Add Distributor'),
+      ),
       body: Padding(
         padding: const EdgeInsets.only(
           left: AppConstants.defaultPadding,
@@ -59,13 +70,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                         SizedBox(width: 12),
-                        Text(
-                          'Loading distributors...',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 14,
-                          ),
-                        ),
+                        Text('Loading distributors...'),
                       ],
                     ),
                   );
@@ -119,10 +124,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   '$distributorCount distributor${distributorCount != 1 ? 's' : ''}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textSecondary,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
                             ),
@@ -151,19 +153,15 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                                 ),
                                 title: Text(
                                   data['name'] ?? 'No name',
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                                 subtitle: Text(
                                   (data['region'] ?? 'No region') as String,
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
-                                trailing: const Icon(
+                                trailing: Icon(
                                   Icons.chevron_right,
-                                  color: AppColors.textSecondary,
+                                  color: Theme.of(context).iconTheme.color,
                                 ),
                                 onTap: () => _openDistributorDetail(
                                   context,
@@ -177,7 +175,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                               const SizedBox(height: 8),
                           ],
                         );
-                      }).toList(),
+                      }),
                   ],
                 );
               },
@@ -223,16 +221,14 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
             children: [
               Text(
                 docId == null ? 'Add Distributor' : 'Edit Distributor',
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: Theme.of(
+                  ctx,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: nameCtrl,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: Theme.of(ctx).textTheme.bodyMedium,
                 decoration: const InputDecoration(
                   labelText: 'Name',
                   border: OutlineInputBorder(),
@@ -243,7 +239,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: phoneCtrl,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: Theme.of(ctx).textTheme.bodyMedium,
                 decoration: const InputDecoration(
                   labelText: 'Phone number',
                   border: OutlineInputBorder(),
@@ -253,7 +249,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: emailCtrl,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: Theme.of(ctx).textTheme.bodyMedium,
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
@@ -263,7 +259,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: locationCtrl,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: Theme.of(ctx).textTheme.bodyMedium,
                 decoration: const InputDecoration(
                   labelText: 'Location',
                   border: OutlineInputBorder(),
@@ -272,7 +268,7 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: regionCtrl,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: Theme.of(ctx).textTheme.bodyMedium,
                 decoration: const InputDecoration(
                   labelText: 'Assigned region',
                   border: OutlineInputBorder(),
@@ -343,11 +339,9 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
           children: [
             Text(
               data['name'] ?? 'Distributor',
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                ctx,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             _infoRow('Phone', data['phone']),
@@ -394,15 +388,14 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           Flexible(
             child: Text(
               (value ?? 'N/A').toString(),
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ],
