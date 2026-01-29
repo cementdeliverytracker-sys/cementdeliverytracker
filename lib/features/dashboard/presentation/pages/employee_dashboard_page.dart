@@ -2,6 +2,7 @@ import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_distributor_list_screen.dart';
 import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,9 +16,11 @@ class EmployeeDashboardPage extends StatefulWidget {
 
 class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
   int _currentIndex = 0;
+  bool _isAttendanceExpanded = false;
 
   final List<Widget> _pages = [
     const EmployeeDashboardScreen(),
+    const EmployeeDistributorListScreen(),
     const SettingsScreen(),
   ];
 
@@ -32,6 +35,8 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AuthNotifier>().user;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Employee Dashboard'),
@@ -44,6 +49,37 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
           ),
         ],
       ),
+      drawer: Drawer(
+        child: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              ExpansionTile(
+                leading: const Icon(Icons.event_note),
+                title: Text(
+                  'Recent Attendance',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                initiallyExpanded: _isAttendanceExpanded,
+                onExpansionChanged: (expanded) {
+                  setState(() => _isAttendanceExpanded = expanded);
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: user == null
+                        ? Text(
+                            'User not authenticated',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          )
+                        : AttendanceHistoryList(employeeId: user.id),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -53,12 +89,16 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
         unselectedItemColor:
             Theme.of(
               context,
-            ).textTheme.bodyMedium?.color?.withValues(alpha:  0.6) ??
+            ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6) ??
             AppColors.textSecondary,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.store),
+            label: 'Distributors',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

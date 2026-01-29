@@ -25,6 +25,8 @@ class AdminDistributorService {
     String? email,
     String? location,
     String? region,
+    double? latitude,
+    double? longitude,
   }) {
     return _collection.add({
       'adminId': adminId,
@@ -33,6 +35,8 @@ class AdminDistributorService {
       'email': email,
       'location': location,
       'region': region,
+      'latitude': latitude,
+      'longitude': longitude,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -45,6 +49,8 @@ class AdminDistributorService {
     String? email,
     String? location,
     String? region,
+    double? latitude,
+    double? longitude,
   }) {
     return _collection.doc(distributorId).update({
       'name': name,
@@ -52,6 +58,8 @@ class AdminDistributorService {
       'email': email,
       'location': location,
       'region': region,
+      'latitude': latitude,
+      'longitude': longitude,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

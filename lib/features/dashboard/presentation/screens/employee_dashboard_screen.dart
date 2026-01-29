@@ -45,6 +45,8 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         final hasLoggedInToday = status == 'logged_in';
         final todayLoginTime = (userData?['lastLoginTime'] as Timestamp?)
             ?.toDate();
+        final username = (userData?['username'] as String? ?? 'Employee')
+            .toUpperCase();
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -52,218 +54,193 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome, Employee',
-                style: TextStyle(
-                  fontSize: 24,
+                'Welcome, $username',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 DateFormat('MMMM d, yyyy').format(DateTime.now()),
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(height: 24),
               Text(
                 'Daily Check-in',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               Text(
-                'Today\'s Attendance',
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                hasLoggedInToday
+                    ? 'Today\'s Attendance'
+                    : 'Mark your attendance today',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(height: 24),
 
-              // Attendance Status Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: hasLoggedInToday
-                        ? Colors.green
-                        : Colors.orange.withValues(alpha:  0.5),
-                    width: 2,
+              // Attendance Status Card - Only show if logged in
+              if (hasLoggedInToday) ...[
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green, width: 2),
                   ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Status',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color:
+                                  Theme.of(context).textTheme.bodyMedium?.color
+                                      ?.withValues(alpha: 0.7) ??
+                                  AppColors.textSecondary,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'Logged In',
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (todayLoginTime != null) ...[
                         Text(
-                          'Status',
+                          'Login Time',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             color:
                                 Theme.of(context).textTheme.bodyMedium?.color
-                                    ?.withValues(alpha:  0.7) ??
+                                    ?.withValues(alpha: 0.7) ??
                                 AppColors.textSecondary,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                        const SizedBox(height: 8),
+                        Text(
+                          DateFormat('hh:mm a').format(todayLoginTime),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                Theme.of(context).textTheme.bodyLarge?.color ??
+                                AppColors.textPrimary,
                           ),
-                          decoration: BoxDecoration(
-                            color: hasLoggedInToday
-                                ? Colors.green.withValues(alpha:  0.2)
-                                : Colors.orange.withValues(alpha:  0.2),
-                            borderRadius: BorderRadius.circular(6),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          DateFormat('MMMM d, yyyy').format(todayLoginTime),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color
+                                    ?.withValues(alpha: 0.7) ??
+                                AppColors.textSecondary,
                           ),
-                          child: Text(
-                            hasLoggedInToday ? 'Logged In' : 'Not Logged In',
-                            style: TextStyle(
-                              color: hasLoggedInToday
-                                  ? Colors.green
-                                  : Colors.orange,
-                              fontWeight: FontWeight.w600,
+                        ),
+                      ] else
+                        const Text(
+                          'Login recorded today',
+                          style: TextStyle(fontSize: 14, color: Colors.green),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+
+              // Stamp Login Button - Only show if NOT logged in
+              if (!hasLoggedInToday) ...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: _isStamping
+                        ? null
+                        : () => _stampLogin(context, currentUser.id),
+                    icon: _isStamping
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
                             ),
-                          ),
-                        ),
-                      ],
+                          )
+                        : const Icon(Icons.location_on),
+                    label: Text(
+                      _isStamping ? 'Stamping Login...' : 'Stamp Login',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    if (todayLoginTime != null) ...[
-                      Text(
-                        'Login Time',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color:
-                              Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha:  0.7) ??
-                              AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        DateFormat('hh:mm a').format(todayLoginTime),
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color:
-                              Theme.of(context).textTheme.bodyLarge?.color ??
-                              AppColors.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormat('MMMM d, yyyy').format(todayLoginTime),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color:
-                              Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha:  0.7) ??
-                              AppColors.textSecondary,
-                        ),
-                      ),
-                    ] else if (hasLoggedInToday)
-                      Text(
-                        'Login recorded today',
-                        style: TextStyle(fontSize: 14, color: Colors.green),
-                      )
-                    else
-                      Text(
-                        'You haven\'t logged in today yet',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color:
-                              Theme.of(context).textTheme.bodyMedium?.color
-                                  ?.withValues(alpha:  0.7) ??
-                              AppColors.textSecondary,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Stamp Login Button
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: (_isStamping || hasLoggedInToday)
-                      ? null
-                      : () => _stampLogin(context, currentUser.id),
-                  icon: _isStamping
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.location_on),
-                  label: Text(
-                    hasLoggedInToday
-                        ? 'Already Logged In Today'
-                        : (_isStamping ? 'Stamping Login...' : 'Stamp Login'),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: hasLoggedInToday
-                        ? Colors.grey
-                        : AppColors.primary,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey,
-                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
 
-              // Info Box
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info, color: Colors.blue, size: 20),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Make sure you are within 100 meters of your workplace to stamp your login.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue,
-                          height: 1.5,
+                // Info Box
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: Colors.blue.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info, color: Colors.blue, size: 20),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Make sure you are within 100 meters of your workplace to stamp your login.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue,
+                            height: 1.5,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 24),
-
-              // Attendance History
-              const Text(
-                'Recent Attendance',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildAttendanceHistory(currentUser.id),
             ],
           ),
         );
@@ -365,8 +342,15 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       if (mounted) setState(() => _isStamping = false);
     }
   }
+}
 
-  Widget _buildAttendanceHistory(String employeeId) {
+class AttendanceHistoryList extends StatelessWidget {
+  final String employeeId;
+
+  const AttendanceHistoryList({super.key, required this.employeeId});
+
+  @override
+  Widget build(BuildContext context) {
     final now = DateTime.now();
     final thirtyDaysAgo = now.subtract(const Duration(days: 30));
 
@@ -391,7 +375,11 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Text(
             'No attendance records yet',
-            style: TextStyle(color: Colors.white60),
+            style:
+                Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.white60) ??
+                const TextStyle(color: Colors.white60),
           );
         }
 
@@ -413,7 +401,9 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white10),
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,8 +415,7 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                         timestamp != null
                             ? DateFormat('MMM d').format(timestamp)
                             : 'Unknown Date',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -455,13 +444,18 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                     timestamp != null
                         ? DateFormat('hh:mm a').format(timestamp)
                         : 'Unknown Time',
-                    style: const TextStyle(color: Colors.white60, fontSize: 14),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.white60),
                   ),
                   if (distance > 0) ...[
                     const SizedBox(height: 8),
                     Text(
                       'Distance: ${distance.toStringAsFixed(2)} m',
-                      style: TextStyle(color: Colors.white60, fontSize: 12),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.white60,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ],

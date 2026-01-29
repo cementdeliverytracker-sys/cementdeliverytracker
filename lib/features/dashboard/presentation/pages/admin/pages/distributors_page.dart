@@ -2,6 +2,7 @@ import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_distributor_service.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/widgets/location_picker_widget.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -198,6 +199,8 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
     final emailCtrl = TextEditingController(text: existing?['email']);
     final locationCtrl = TextEditingController(text: existing?['location']);
     final regionCtrl = TextEditingController(text: existing?['region']);
+    double? selectedLatitude = existing?['latitude'];
+    double? selectedLongitude = existing?['longitude'];
 
     showModalBottomSheet(
       context: context,
@@ -266,6 +269,37 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                 ),
               ),
               const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  LocationPickerResult? result =
+                      selectedLatitude != null && selectedLongitude != null
+                      ? LocationPickerResult(
+                          latitude: selectedLatitude!,
+                          longitude: selectedLongitude!,
+                          address: locationCtrl.text,
+                        )
+                      : null;
+                  final picked = await Navigator.push<LocationPickerResult>(
+                    ctx,
+                    MaterialPageRoute(
+                      builder: (context) => LocationPickerWidget(
+                        initialLocation: result,
+                        onLocationSelected: (location) {
+                          // Will be called before pop
+                        },
+                      ),
+                    ),
+                  );
+                  if (picked != null) {
+                    locationCtrl.text = picked.address;
+                    selectedLatitude = picked.latitude;
+                    selectedLongitude = picked.longitude;
+                  }
+                },
+                icon: const Icon(Icons.location_on),
+                label: const Text('Pick Location on Map'),
+              ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: regionCtrl,
                 style: Theme.of(ctx).textTheme.bodyMedium,
@@ -294,6 +328,8 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                           email: emailCtrl.text.trim(),
                           location: locationCtrl.text.trim(),
                           region: regionCtrl.text.trim(),
+                          latitude: selectedLatitude,
+                          longitude: selectedLongitude,
                         );
                       } else {
                         await _service.updateDistributor(
@@ -303,6 +339,8 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
                           email: emailCtrl.text.trim(),
                           location: locationCtrl.text.trim(),
                           region: regionCtrl.text.trim(),
+                          latitude: selectedLatitude,
+                          longitude: selectedLongitude,
                         );
                       }
                       if (mounted) Navigator.pop(ctx);
@@ -349,6 +387,36 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
             _infoRow('Location', data['location']),
             _infoRow('Region', data['region']),
             _infoRow('Created', _formatDate(data['createdAt'])),
+            if (data['latitude'] != null && data['longitude'] != null) ...[
+              _infoRow(
+                'Coordinates',
+                '${(data['latitude'] as num?)?.toStringAsFixed(6)}, ${(data['longitude'] as num?)?.toStringAsFixed(6)}',
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final latitude = data['latitude'] as num?;
+                  final longitude = data['longitude'] as num?;
+                  if (latitude != null && longitude != null) {
+                    Navigator.push<LocationPickerResult>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LocationPickerWidget(
+                          initialLocation: LocationPickerResult(
+                            latitude: latitude.toDouble(),
+                            longitude: longitude.toDouble(),
+                            address: data['location'] ?? 'Location',
+                          ),
+                          onLocationSelected: (_) {},
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.map),
+                label: const Text('View on Map'),
+              ),
+            ],
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
