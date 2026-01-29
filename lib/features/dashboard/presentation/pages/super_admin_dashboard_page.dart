@@ -98,19 +98,28 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                 ),
               ),
               const Divider(),
-              const Padding(
-                padding: EdgeInsets.all(AppConstants.defaultPadding),
+              Padding(
+                padding: const EdgeInsets.all(AppConstants.defaultPadding),
                 child: Text(
                   'Pending User Approvals',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 child: dashboardProvider.pendingUsers.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
                           'No pending approvals',
-                          style: TextStyle(color: Colors.white60, fontSize: 16),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color
+                                    ?.withValues(alpha: 0.6),
+                              ),
                         ),
                       )
                     : ListView.builder(
@@ -156,16 +165,14 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                                       Row(
                                         children: [
                                           CircleAvatar(
-                                            backgroundColor: const Color(
-                                              0xFFFF6F00,
-                                            ),
+                                            backgroundColor: AppColors.primary,
                                             radius: 24,
                                             child: Text(
                                               user.username[0].toUpperCase(),
                                               style: const TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                                color: AppColors.onPrimary,
                                               ),
                                             ),
                                           ),
@@ -177,18 +184,21 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                                               children: [
                                                 Text(
                                                   user.username,
-                                                  style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                  ),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 18,
+                                                      ),
                                                 ),
                                                 Text(
                                                   user.email,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.white60,
-                                                  ),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(fontSize: 14),
                                                 ),
                                               ],
                                             ),
@@ -196,7 +206,9 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
                                         ],
                                       ),
                                       const SizedBox(height: 16),
-                                      const Divider(color: Colors.white24),
+                                      Divider(
+                                        color: Theme.of(context).dividerColor,
+                                      ),
                                       const SizedBox(height: 12),
                                       _InfoRow(
                                         icon: Icons.business,
@@ -314,16 +326,16 @@ class _InfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white54,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(fontSize: 14, color: Colors.white),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontSize: 14),
               ),
             ],
           ),

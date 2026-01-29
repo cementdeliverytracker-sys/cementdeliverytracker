@@ -2,7 +2,9 @@ import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/admin_request_page.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/pages/employee_code_entry_page.dart';
+import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
@@ -10,6 +12,23 @@ class RoleSelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Choose Your Role'),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              await context.read<AuthNotifier>().logout();
+              if (context.mounted) {
+                navigator.pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            },
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppConstants.defaultPadding),
@@ -21,18 +40,20 @@ class RoleSelectionPage extends StatelessWidget {
                 width: 200,
                 child: Image.asset('assets/images/cementdeliverytracker.png'),
               ),
-              const Text(
+              Text(
                 'Choose Your Role',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Select how you want to use this app',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
+                ),
               ),
               const SizedBox(height: 40),
               _RoleCard(
@@ -85,7 +106,7 @@ class _RoleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Theme.of(context).scaffoldBackgroundColor,
+      color: Theme.of(context).cardColor,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppConstants.defaultBorderRadius),
@@ -97,7 +118,7 @@ class _RoleCard extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha:  0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: AppColors.primary, size: 32),
@@ -109,8 +130,7 @@ class _RoleCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
@@ -118,17 +138,21 @@ class _RoleCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       description,
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 14,
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.arrow_forward_ios,
-                color: Colors.white54,
+                color: Theme.of(
+                  context,
+                ).iconTheme.color?.withValues(alpha: 0.5),
                 size: 20,
               ),
             ],

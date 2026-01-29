@@ -24,8 +24,9 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize Firebase App Check
+  // Using playIntegrity for Android (production) and debug for iOS during development
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.debug,
+    androidProvider: AndroidProvider.playIntegrity,
     appleProvider: AppleProvider.debug,
   );
 

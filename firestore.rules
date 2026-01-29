@@ -47,12 +47,6 @@ service cloud.firestore {
       return request.auth.uid == uid;
     }
     
-    // Validate that admin exists (for adminId references)
-    function adminExists(adminId) {
-      return exists(/databases/$(database)/documents/users/$(adminId)) 
-        && cachedUserData(adminId).userType == 'admin';
-    }
-    
     // ===========================
     // USERS COLLECTION
     // ===========================
@@ -67,6 +61,13 @@ service cloud.firestore {
       allow create: if isAdmin(request.auth.uid)
         && request.resource.data.userType == 'employee'
         && request.resource.data.adminId == request.auth.uid;
+      
+      // NEW USERS: Allow authenticated users to create their own document during signup
+      // Must be creating their own userId and set userType to 'pending', 'pending_employee', or 'temp_employee'
+      allow create: if isAuthenticated()
+        && isOwner(userId)
+        && request.resource.data.userType in ['pending', 'pending_employee', 'temp_employee']
+        && request.resource.data.keys().hasAll(['email', 'username', 'userType']);
       
       // === READ ===
       // Superadmin can read any user
@@ -88,6 +89,32 @@ service cloud.firestore {
         && !request.resource.data.diff(resource.data)
           .affectedKeys().hasAny(['userType', 'adminId']);
       
+      // ROLE TRANSITION: temp_employee -> pending (admin request)
+      allow update: if isOwner(userId)
+        && resource.data.userType == 'temp_employee'
+        && request.resource.data.userType == 'pending'
+        && request.resource.data.keys().hasAll(['adminRequestData']);
+      
+      // ROLE TRANSITION: temp_employee -> pending_employee (employee join request)
+      allow update: if isOwner(userId)
+        && resource.data.userType == 'temp_employee'
+        && request.resource.data.userType == 'pending_employee'
+        && request.resource.data.keys().hasAll(['adminId', 'employeeRequestData']);
+      
+      // Admin can approve pending_employee requests (pending_employee -> employee)
+      allow update: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid
+        && resource.data.userType == 'pending_employee'
+        && request.resource.data.userType == 'employee'
+        && request.resource.data.adminId == request.auth.uid
+        && request.resource.data.keys().hasAll(['employeeId']);
+      
+      // Admin can reject pending_employee requests (pending_employee -> temp_employee)
+      allow update: if isAdmin(request.auth.uid)
+        && resource.data.adminId == request.auth.uid
+        && resource.data.userType == 'pending_employee'
+        && request.resource.data.userType == 'temp_employee';
+
       // Admin can update their team members (but not userType or adminId)
       allow update: if isAdmin(request.auth.uid)
         && resource.data.adminId == request.auth.uid
@@ -130,13 +157,19 @@ service cloud.firestore {
       // Superadmin can read any enterprise
       allow read: if isSuperAdmin(request.auth.uid);
       
-      // Admin can read their own enterprise
-      allow read: if isAdmin(request.auth.uid)
+      // Authenticated user can read enterprise if ownerId matches their UID (Admin reading their own)
+      allow read: if isAuthenticated()
         && resource.data.ownerId == request.auth.uid;
       
-      // Employee can read their admin's enterprise
-      allow read: if isEmployee(request.auth.uid)
+      // Employee can read their admin's enterprise using adminId reference
+      allow read: if isAuthenticated()
         && currentUserData().get('adminId', '') == enterpriseId;
+      
+      // Authenticated users can query enterprises by adminCode (for employee join request)
+      allow read: if isAuthenticated();
+      
+      // Allow querying enterprises to find by adminCode
+      allow list: if isAuthenticated();
       
       // === UPDATE ===
       // Superadmin can update any enterprise
@@ -144,7 +177,7 @@ service cloud.firestore {
       
       // Admin can update their own enterprise (but not ownerId)
       // Location can only be set once (when locationSet changes from false to true)
-      allow update: if isAdmin(request.auth.uid)
+      allow update: if isAuthenticated()
         && resource.data.ownerId == request.auth.uid
         && request.resource.data.ownerId == resource.data.ownerId
         && (
