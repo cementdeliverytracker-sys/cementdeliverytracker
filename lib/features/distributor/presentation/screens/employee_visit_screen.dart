@@ -296,6 +296,7 @@ class _EmployeeVisitScreenState extends State<EmployeeVisitScreen>
       // Create the visit and get the visit ID
       final visitId = await repository.checkIn(
         employeeId: widget.employeeId,
+        adminId: widget.adminId,
         distributorId: selectedDistributor.id,
         distributorName: selectedDistributor.name,
         latitude: position.latitude,
@@ -307,6 +308,7 @@ class _EmployeeVisitScreenState extends State<EmployeeVisitScreen>
       final newVisit = Visit(
         id: visitId,
         employeeId: widget.employeeId,
+        adminId: widget.adminId,
         distributorId: selectedDistributor.id,
         distributorName: selectedDistributor.name,
         checkInTime: DateTime.now(),

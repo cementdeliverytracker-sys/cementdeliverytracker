@@ -68,6 +68,7 @@ class VisitTask {
 class Visit {
   final String id;
   final String employeeId;
+  final String? adminId;
   final String distributorId;
   final String distributorName;
   final DateTime checkInTime;
@@ -86,6 +87,7 @@ class Visit {
   Visit({
     required this.id,
     required this.employeeId,
+    this.adminId,
     required this.distributorId,
     required this.distributorName,
     required this.checkInTime,
@@ -121,6 +123,7 @@ class Visit {
     return {
       'id': id,
       'employeeId': employeeId,
+      'adminId': adminId,
       'distributorId': distributorId,
       'distributorName': distributorName,
       'checkInTime': checkInTime,
@@ -154,6 +157,7 @@ class Visit {
     return Visit(
       id: data['id'] as String,
       employeeId: data['employeeId'] as String,
+      adminId: data['adminId'] as String?,
       distributorId: data['distributorId'] as String,
       distributorName: data['distributorName'] as String,
       checkInTime: (data['checkInTime'] as dynamic)?.toDate() ?? DateTime.now(),
@@ -177,6 +181,7 @@ class Visit {
   Visit copyWith({
     String? id,
     String? employeeId,
+    String? adminId,
     String? distributorId,
     String? distributorName,
     DateTime? checkInTime,
@@ -195,6 +200,7 @@ class Visit {
     return Visit(
       id: id ?? this.id,
       employeeId: employeeId ?? this.employeeId,
+      adminId: adminId ?? this.adminId,
       distributorId: distributorId ?? this.distributorId,
       distributorName: distributorName ?? this.distributorName,
       checkInTime: checkInTime ?? this.checkInTime,

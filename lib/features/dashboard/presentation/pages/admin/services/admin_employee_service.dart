@@ -9,7 +9,7 @@ class AdminEmployeeService {
 
   /// Generate a unique 6-digit employee ID with collision avoidance.
   /// Attempts up to 10 times to find an unused ID before falling back.
-  Future<String> generateUniqueEmployeeId() async {
+  Future<String> generateUniqueEmployeeId(String adminId) async {
     const min = 100000;
     const max = 999999;
     final rand = Random.secure();
@@ -18,6 +18,7 @@ class AdminEmployeeService {
       final candidate = (min + rand.nextInt(max - min + 1)).toString();
       final clash = await _firestore
           .collection(AppConstants.usersCollection)
+          .where('adminId', isEqualTo: adminId)
           .where('employeeId', isEqualTo: candidate)
           .limit(1)
           .get();
@@ -31,14 +32,18 @@ class AdminEmployeeService {
 
   /// Approve a pending employee and assign them an employee ID.
   /// Updates their userType to 'employee' and records approval timestamp.
-  Future<void> approveEmployee(String userId) async {
-    final employeeId = await generateUniqueEmployeeId();
+  Future<void> approveEmployee({
+    required String userId,
+    required String adminId,
+  }) async {
+    final employeeId = await generateUniqueEmployeeId(adminId);
 
     await _firestore
         .collection(AppConstants.usersCollection)
         .doc(userId)
         .update({
           'userType': AppConstants.userTypeEmployee,
+          'adminId': adminId,
           'employeeId': employeeId,
           'employeeRequestData.status': 'approved',
           'employeeRequestData.approvedAt': FieldValue.serverTimestamp(),

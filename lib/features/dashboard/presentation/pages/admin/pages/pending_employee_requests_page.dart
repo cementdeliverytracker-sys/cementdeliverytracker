@@ -195,7 +195,10 @@ class _PendingEmployeeRequestsPageState
 
   Future<void> _approveEmployee(BuildContext context, String userId) async {
     try {
-      await _employeeService.approveEmployee(userId);
+      await _employeeService.approveEmployee(
+        userId: userId,
+        adminId: widget.adminId,
+      );
     } catch (e) {
       if (!context.mounted || !mounted) return;
       ScaffoldMessenger.of(

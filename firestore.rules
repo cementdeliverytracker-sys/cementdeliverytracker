@@ -281,10 +281,13 @@ service cloud.firestore {
         && (resource.data.employeeId == request.auth.uid
             || resource.data.employeeId == currentEmployeeId());
 
-      // Admin can read visits for their employees
+      // Admin can read visits for their employees (primary check by adminId)
       allow read: if isAdmin(request.auth.uid)
-        && cachedUserData(resource.data.employeeId).adminId ==
-            request.auth.uid;
+        && resource.data.adminId == request.auth.uid;
+
+      // Admin can read visits by employee lookup (fallback for non-adminId visits)
+      allow read: if isAdmin(request.auth.uid)
+        && cachedUserData(resource.data.employeeId).adminId == request.auth.uid;
 
       // Superadmin can read any visit
       allow read: if isSuperAdmin(request.auth.uid);

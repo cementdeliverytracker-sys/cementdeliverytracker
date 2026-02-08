@@ -307,8 +307,8 @@ class NavigationMenuItem {
 class NavigationMenuConfig {
   static const List<NavigationMenuItem> items = [
     NavigationMenuItem(icon: Icons.dashboard, label: 'Dashboard', index: 0),
-    NavigationMenuItem(icon: Icons.list, label: 'Orders', index: 1),
-    NavigationMenuItem(icon: Icons.people, label: 'Team', index: 2),
+    NavigationMenuItem(icon: Icons.people, label: 'Team', index: 1),
+    NavigationMenuItem(icon: Icons.bar_chart, label: 'Reports', index: 2),
     NavigationMenuItem(icon: Icons.settings, label: 'Settings', index: 3),
   ];
 }

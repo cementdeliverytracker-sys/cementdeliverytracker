@@ -115,6 +115,7 @@ class DistributorRepository extends ChangeNotifier {
 
   Future<String> checkIn({
     required String employeeId,
+    String? adminId,
     required String distributorId,
     required String distributorName,
     required double latitude,
@@ -123,6 +124,7 @@ class DistributorRepository extends ChangeNotifier {
   }) {
     return _visitService.checkIn(
       employeeId: employeeId,
+      adminId: adminId,
       distributorId: distributorId,
       distributorName: distributorName,
       latitude: latitude,

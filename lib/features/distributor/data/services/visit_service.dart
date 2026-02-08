@@ -192,6 +192,7 @@ class VisitService extends ChangeNotifier {
   /// Create check-in (start a new visit)
   Future<String> checkIn({
     required String employeeId,
+    String? adminId,
     required String distributorId,
     required String distributorName,
     required double latitude,
@@ -205,6 +206,7 @@ class VisitService extends ChangeNotifier {
       final visit = Visit(
         id: '', // Will be set by Firestore
         employeeId: employeeId,
+        adminId: adminId,
         distributorId: distributorId,
         distributorName: distributorName,
         checkInTime: DateTime.now(),
