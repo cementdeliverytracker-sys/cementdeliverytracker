@@ -21,6 +21,11 @@ service cloud.firestore {
     function getUserType(uid) {
       return cachedUserData(uid).userType;
     }
+
+    // Get current user's employeeId (if any)
+    function currentEmployeeId() {
+      return currentUserData().get('employeeId', '');
+    }
     
     // Check if user is authenticated
     function isAuthenticated() {
@@ -246,6 +251,65 @@ service cloud.firestore {
       allow delete: if isAdmin(request.auth.uid)
         && resource.data.adminId == request.auth.uid;
       
+      // Deny all other cases
+      allow read, create, update, delete: if false;
+    }
+
+    // ===========================
+    // VISITS COLLECTION
+    // ===========================
+
+    match /visits/{visitId} {
+
+      // === CREATE ===
+      // Employee can create visits for themselves
+      allow create: if isEmployee(request.auth.uid)
+        && (request.resource.data.employeeId == request.auth.uid
+            || request.resource.data.employeeId == currentEmployeeId());
+
+      // Admin can create visits for their employees
+      allow create: if isAdmin(request.auth.uid)
+        && cachedUserData(request.resource.data.employeeId).adminId ==
+            request.auth.uid;
+
+      // Superadmin can create any visit
+      allow create: if isSuperAdmin(request.auth.uid);
+
+      // === READ ===
+      // Employee can read their own visits
+      allow read: if isEmployee(request.auth.uid)
+        && (resource.data.employeeId == request.auth.uid
+            || resource.data.employeeId == currentEmployeeId());
+
+      // Admin can read visits for their employees
+      allow read: if isAdmin(request.auth.uid)
+        && cachedUserData(resource.data.employeeId).adminId ==
+            request.auth.uid;
+
+      // Superadmin can read any visit
+      allow read: if isSuperAdmin(request.auth.uid);
+
+      // === UPDATE ===
+      // Employee can update their own visits
+      allow update: if isEmployee(request.auth.uid)
+        && (resource.data.employeeId == request.auth.uid
+            || resource.data.employeeId == currentEmployeeId())
+        && request.resource.data.employeeId == resource.data.employeeId;
+
+      // Admin can update visits for their employees
+      allow update: if isAdmin(request.auth.uid)
+        && cachedUserData(resource.data.employeeId).adminId ==
+            request.auth.uid
+        && request.resource.data.employeeId == resource.data.employeeId;
+
+      // Superadmin can update any visit
+      allow update: if isSuperAdmin(request.auth.uid)
+        && request.resource.data.employeeId == resource.data.employeeId;
+
+      // === DELETE ===
+      // Superadmin can delete any visit
+      allow delete: if isSuperAdmin(request.auth.uid);
+
       // Deny all other cases
       allow read, create, update, delete: if false;
     }

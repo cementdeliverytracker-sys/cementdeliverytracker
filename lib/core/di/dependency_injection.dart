@@ -17,6 +17,7 @@ import 'package:cementdeliverytracker/features/orders/domain/usecases/delete_ord
 import 'package:cementdeliverytracker/features/orders/domain/usecases/get_orders.dart';
 import 'package:cementdeliverytracker/features/orders/domain/usecases/update_order.dart';
 import 'package:cementdeliverytracker/features/orders/presentation/providers/orders_provider.dart';
+import 'package:cementdeliverytracker/features/distributor/feature_providers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -126,6 +127,7 @@ class DependencyInjection {
     );
 
     return [
+      ...DistributorFeatureProviders.getProviders(),
       Provider<NetworkInfo>.value(value: networkInfo),
       Provider<AuthRepository>.value(value: authRepository),
       Provider<DashboardRepository>.value(value: dashboardRepository),
