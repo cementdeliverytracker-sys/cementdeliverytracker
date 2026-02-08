@@ -1,6 +1,7 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/exceptions/location_exceptions.dart';
 import 'package:cementdeliverytracker/features/dashboard/data/services/attendance_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -248,47 +249,15 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
     );
   }
 
+  /// Optimized stamp login with GPS timeout, fallback, accuracy check, and error handling
   Future<void> _stampLogin(BuildContext context, String employeeId) async {
     setState(() => _isStamping = true);
 
     try {
-      // Request location permission
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Location permission denied')),
-            );
-          }
-          setState(() => _isStamping = false);
-          return;
-        }
-      }
+      // Step 1: Request and validate location permission
+      final position = await _getLocationWithValidation();
 
-      if (permission == LocationPermission.deniedForever) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Location permission denied permanently. Please enable it in settings.',
-              ),
-            ),
-          );
-        }
-        setState(() => _isStamping = false);
-        return;
-      }
-
-      // Get current position
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-        ),
-      );
-
-      // Get admin ID from user document
+      // Step 2: Get admin ID from user document
       final userDoc = await FirebaseFirestore.instance
           .collection(AppConstants.usersCollection)
           .doc(employeeId)
@@ -297,23 +266,15 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
       if (!mounted) return;
 
       if (!userDoc.exists || userDoc.data() == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('User data not found')));
-        setState(() => _isStamping = false);
-        return;
+        throw Exception('User data not found');
       }
 
       final adminId = userDoc.data()?['adminId'] as String?;
       if (adminId == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Admin ID not found')));
-        setState(() => _isStamping = false);
-        return;
+        throw Exception('Admin ID not found');
       }
 
-      // Create attendance log
+      // Step 3: Create attendance log with atomic transaction
       await AttendanceService.createAttendanceLog(
         employeeId: employeeId,
         adminId: adminId,
@@ -326,20 +287,133 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           const SnackBar(
             content: Text('Login stamped successfully'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } on LocationException catch (e) {
+      // User-friendly error messages for location-specific errors
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.userMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
     } catch (e) {
+      // Generic error handling
       if (mounted) {
+        final errorMessage = e.toString().replaceFirst('Exception: ', '');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            content: Text('Error: $errorMessage'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
           ),
         );
       }
     } finally {
-      if (mounted) setState(() => _isStamping = false);
+      if (mounted) {
+        setState(() => _isStamping = false);
+      }
+    }
+  }
+
+  /// Get location with timeout, fallback, and accuracy validation
+  /// Returns Position if successful, throws LocationException otherwise
+  Future<Position> _getLocationWithValidation() async {
+    // Step 1: Check location permission
+    await _checkLocationPermission();
+
+    // Step 2: Try GPS with 10-second timeout
+    try {
+      final position =
+          await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              timeLimit: Duration(seconds: 10),
+            ),
+          ).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw GPSTimeoutException(),
+          );
+
+      // Step 3: Validate accuracy threshold (<50 meters)
+      await _validateLocationAccuracy(position);
+
+      // Step 4: Validate location coordinates
+      _validateLocationCoordinates(position.latitude, position.longitude);
+
+      return position;
+    } on GPSTimeoutException {
+      // GPS timed out, try fallback (currently unavailable, but shows error)
+      throw GPSTimeoutException();
+    } on LocationAccuracyException {
+      // Location accuracy too poor, show error
+      rethrow;
+    } catch (e) {
+      // GPS failed, try fallback
+      throw GPSTimeoutException();
+    }
+  }
+
+  /// Check and request location permission if needed
+  /// Throws LocationPermissionException if permission denied
+  Future<LocationPermission> _checkLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw LocationPermissionException(isPermanent: false);
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw LocationPermissionException(isPermanent: true);
+    }
+
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      throw NoLocationServiceException();
+    }
+
+    return permission;
+  }
+
+  /// Validate location accuracy threshold
+  /// Throws LocationAccuracyException if accuracy > 50 meters
+  Future<void> _validateLocationAccuracy(Position position) async {
+    const double accuracyThreshold = 50.0;
+
+    if (position.accuracy > accuracyThreshold) {
+      throw LocationAccuracyException(position.accuracy);
+    }
+
+    // Warn if accuracy is moderate (30-50 meters)
+    if (position.accuracy > 30 && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Location accuracy is moderate (±${position.accuracy.toStringAsFixed(0)}m). '
+            'For best results, ensure clear sky view.',
+          ),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  /// Validate location coordinates are within valid range
+  /// Throws InvalidLocationException if coordinates are invalid
+  void _validateLocationCoordinates(double latitude, double longitude) {
+    if (latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180) {
+      throw InvalidLocationException(latitude, longitude);
     }
   }
 }

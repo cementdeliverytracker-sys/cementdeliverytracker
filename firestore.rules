@@ -213,6 +213,10 @@ service cloud.firestore {
       allow create: if isAdmin(request.auth.uid)
         && request.resource.data.adminId == request.auth.uid;
       
+      // Employee can create distributors for their assigned admin
+      allow create: if isEmployee(request.auth.uid)
+        && request.resource.data.adminId == currentUserData().adminId;
+      
       // === READ ===
       // Superadmin can read any distributor
       allow read: if isSuperAdmin(request.auth.uid);

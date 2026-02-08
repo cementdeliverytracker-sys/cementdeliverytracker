@@ -1,7 +1,6 @@
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/dashboard_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/team_screen.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/reports_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:cementdeliverytracker/features/orders/presentation/pages/orders_list_page.dart';
 import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
@@ -23,7 +22,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     const DashboardScreen(),
     const OrdersListPage(),
     const TeamScreen(),
-    const ReportsScreen(),
     const SettingsScreen(),
   ];
 
@@ -38,14 +36,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
-        actions: _selectedIndex == 3
-            ? null
-            : [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications),
-                ),
-              ],
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
+        ],
       ),
       body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: isLargeScreen
@@ -58,7 +51,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               unselectedItemColor:
                   Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.color?.withValues(alpha:  0.6) ??
+                  ).textTheme.bodyMedium?.color?.withValues(alpha: 0.6) ??
                   AppColors.textSecondary,
               items: NavigationMenuConfig.items
                   .map(

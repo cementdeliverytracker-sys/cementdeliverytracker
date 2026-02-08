@@ -387,6 +387,13 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
             _infoRow('Location', data['location']),
             _infoRow('Region', data['region']),
             _infoRow('Created', _formatDate(data['createdAt'])),
+            if (data['createdByName'] != null ||
+                data['createdByType'] != null) ...[
+              _infoRow(
+                'Added By',
+                '${data['createdByName'] ?? 'Unknown'} (${data['createdByType'] ?? 'admin'})',
+              ),
+            ],
             if (data['latitude'] != null && data['longitude'] != null) ...[
               _infoRow(
                 'Coordinates',

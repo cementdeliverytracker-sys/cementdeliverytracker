@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/exceptions/location_exceptions.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/services/admin_location_cache.dart';
 
 class AttendanceService {
   static const double _maxDistanceMeters = 100;
@@ -29,19 +31,11 @@ class AttendanceService {
     );
   }
 
-  /// Get admin's enterprise location
-  static Future<Map<String, dynamic>?> getAdminLocation(String adminId) async {
+  /// Get admin's enterprise location with caching
+  /// Uses in-memory cache with 24-hour TTL to reduce Firestore reads
+  static Future<Map<String, dynamic>> getAdminLocation(String adminId) async {
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection(AppConstants.enterprisesCollection)
-          .doc(adminId)
-          .get();
-
-      if (doc.exists && doc.data() != null) {
-        final location = doc.data()!['location'] as Map<String, dynamic>?;
-        return location;
-      }
-      return null;
+      return await AdminLocationCache().getAdminLocation(adminId);
     } catch (e) {
       rethrow;
     }
@@ -75,74 +69,91 @@ class AttendanceService {
     required double longitude,
   }) async {
     try {
-      // Fetch employee status to honor admin-issued global logout
-      final userDoc = await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .doc(employeeId)
-          .get();
-      final userStatus = (userDoc.data()?['status'] ?? 'logged_out') as String;
+      // Use Firestore transaction for atomic consistency
+      return await FirebaseFirestore.instance.runTransaction<bool>((
+        transaction,
+      ) async {
+        // === READ PHASE ===
+        // Fetch user document
+        final userDocRef = FirebaseFirestore.instance
+            .collection(AppConstants.usersCollection)
+            .doc(employeeId);
+        final userDoc = await transaction.get(userDocRef);
 
-      // Get admin's location
-      final adminLocation = await getAdminLocation(adminId);
-      if (adminLocation == null) {
-        throw Exception('Admin location not set');
-      }
+        if (!userDoc.exists) {
+          throw Exception('User not found');
+        }
 
-      final adminLat = adminLocation['latitude'] as double;
-      final adminLong = adminLocation['longitude'] as double;
+        final userStatus =
+            (userDoc.data()?['status'] ?? 'logged_out') as String;
 
-      // Calculate distance
-      final distance = await calculateDistance(
-        adminLat: adminLat,
-        adminLong: adminLong,
-        employeeLat: latitude,
-        employeeLong: longitude,
-      );
+        // Get admin's location from cache
+        final adminLocation = await getAdminLocation(adminId);
+        final adminLat = adminLocation['latitude'] as double;
+        final adminLong = adminLocation['longitude'] as double;
 
-      // TODO: Temporarily disabled for testing - re-enable after initial testing
-      // Check if within allowed distance
-      if (distance > _maxDistanceMeters) {
-        throw Exception(
-          'You must be within ${_maxDistanceMeters.toInt()} meters of your workplace to stamp your login.\n'
-          'Distance: ${distance.toStringAsFixed(2)} meters',
+        // Validate location coordinates
+        if (adminLat < -90 ||
+            adminLat > 90 ||
+            adminLong < -180 ||
+            adminLong > 180) {
+          throw InvalidLocationException(adminLat, adminLong);
+        }
+
+        // Calculate distance between employee and admin location
+        final distance = await calculateDistance(
+          adminLat: adminLat,
+          adminLong: adminLong,
+          employeeLat: latitude,
+          employeeLong: longitude,
         );
-      }
 
-      // Check if already logged in today
-      final alreadyLoggedIn = await hasLoggedInToday(employeeId);
-      final wasForceLoggedOut = userStatus == 'logged_out';
-      if (alreadyLoggedIn && !wasForceLoggedOut) {
-        throw Exception('You have already logged in today');
-      }
+        // === VALIDATION PHASE ===
+        // Re-enabled: Check if within allowed distance
+        if (distance > _maxDistanceMeters) {
+          throw LocationOutOfRangeException(
+            distance: distance,
+            maxDistance: _maxDistanceMeters,
+          );
+        }
 
-      // Create attendance log
-      await FirebaseFirestore.instance
-          .collection(AppConstants.attendanceLogsCollection)
-          .add({
-            'employeeId': employeeId,
-            'adminId': adminId,
-            'timestamp': FieldValue.serverTimestamp(),
-            'location': {
-              'latitude': latitude,
-              'longitude': longitude,
-              'adminLatitude': adminLat,
-              'adminLongitude': adminLong,
-              'distance': distance,
-            },
-            'status': 'logged_in',
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+        // Check if already logged in today (unless force logged out)
+        final alreadyLoggedIn = await hasLoggedInToday(employeeId);
+        final wasForceLoggedOut = userStatus == 'logged_out';
+        if (alreadyLoggedIn && !wasForceLoggedOut) {
+          throw AlreadyLoggedInException();
+        }
 
-      // Update user status to logged_in
-      await FirebaseFirestore.instance
-          .collection(AppConstants.usersCollection)
-          .doc(employeeId)
-          .update({
-            'status': 'logged_in',
-            'lastLoginTime': FieldValue.serverTimestamp(),
-          });
+        // === WRITE PHASE ===
+        // Both writes succeed or both fail (atomic)
+        // Create attendance log document
+        final attendanceRef = FirebaseFirestore.instance
+            .collection(AppConstants.attendanceLogsCollection)
+            .doc();
 
-      return true;
+        transaction.set(attendanceRef, {
+          'employeeId': employeeId,
+          'adminId': adminId,
+          'timestamp': FieldValue.serverTimestamp(),
+          'location': {
+            'latitude': latitude,
+            'longitude': longitude,
+            'adminLatitude': adminLat,
+            'adminLongitude': adminLong,
+            'distance': distance,
+          },
+          'status': 'logged_in',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        // Update user status to logged_in (atomic with attendance log)
+        transaction.update(userDocRef, {
+          'status': 'logged_in',
+          'lastLoginTime': FieldValue.serverTimestamp(),
+        });
+
+        return true;
+      });
     } catch (e) {
       rethrow;
     }

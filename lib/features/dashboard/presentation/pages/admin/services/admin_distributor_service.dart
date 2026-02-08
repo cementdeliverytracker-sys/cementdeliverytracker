@@ -27,6 +27,9 @@ class AdminDistributorService {
     String? region,
     double? latitude,
     double? longitude,
+    String? createdByUserId,
+    String? createdByName,
+    String? createdByType,
   }) {
     return _collection.add({
       'adminId': adminId,
@@ -37,6 +40,9 @@ class AdminDistributorService {
       'region': region,
       'latitude': latitude,
       'longitude': longitude,
+      'createdByUserId': createdByUserId,
+      'createdByName': createdByName,
+      'createdByType': createdByType ?? 'admin',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });

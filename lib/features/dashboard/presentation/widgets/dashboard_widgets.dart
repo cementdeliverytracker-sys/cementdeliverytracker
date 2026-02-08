@@ -65,7 +65,7 @@ class FixedBottomButton extends StatelessWidget {
           color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).shadowColor.withValues(alpha:  0.3),
+              color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, -2),
             ),
@@ -309,7 +309,6 @@ class NavigationMenuConfig {
     NavigationMenuItem(icon: Icons.dashboard, label: 'Dashboard', index: 0),
     NavigationMenuItem(icon: Icons.list, label: 'Orders', index: 1),
     NavigationMenuItem(icon: Icons.people, label: 'Team', index: 2),
-    NavigationMenuItem(icon: Icons.report, label: 'Reports', index: 3),
-    NavigationMenuItem(icon: Icons.settings, label: 'Settings', index: 4),
+    NavigationMenuItem(icon: Icons.settings, label: 'Settings', index: 3),
   ];
 }

@@ -1,11 +1,15 @@
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_add_distributor_dialog.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_distributor_list_screen.dart';
-import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
 
 class EmployeeDashboardPage extends StatefulWidget {
   const EmployeeDashboardPage({super.key});
@@ -31,6 +35,49 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
     if (user != null) {
       context.read<DashboardProvider>().loadUserData(user.id);
     }
+  }
+
+  Future<void> _openAddDistributorDialog() async {
+    final user = context.read<AuthNotifier>().user;
+    if (user == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('User not authenticated')));
+      return;
+    }
+
+    // Get the admin ID from user's data
+    final userDoc = await FirebaseFirestore.instance
+        .collection(AppConstants.usersCollection)
+        .doc(user.id)
+        .get();
+
+    final adminId = userDoc.data()?['adminId'] as String?;
+    if (adminId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No admin assigned to you')),
+        );
+      }
+      return;
+    }
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => EmployeeAddDistributorDialog(adminId: adminId),
+      );
+    }
+  }
+
+  Widget _buildDistributorFAB() {
+    return FloatingActionButton.extended(
+      onPressed: _openAddDistributorDialog,
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.onPrimary,
+      icon: const Icon(Icons.add),
+      label: const Text('Add Distributor'),
+    );
   }
 
   @override
@@ -81,6 +128,7 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
         ),
       ),
       body: _pages[_currentIndex],
+      floatingActionButton: _currentIndex == 1 ? _buildDistributorFAB() : null,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         currentIndex: _currentIndex,
