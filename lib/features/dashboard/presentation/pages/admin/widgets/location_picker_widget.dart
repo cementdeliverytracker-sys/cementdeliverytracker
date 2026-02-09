@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:cementdeliverytracker/core/services/geocoding_cache_service.dart';
+import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
+import 'package:cementdeliverytracker/core/utils/debouncer.dart';
 
 class LocationPickerResult {
   final double latitude;
@@ -30,11 +32,19 @@ class LocationPickerWidget extends StatefulWidget {
 }
 
 class _LocationPickerWidgetState extends State<LocationPickerWidget> {
-  late GoogleMapController _mapController;
   LatLng _selectedLocation = const LatLng(28.7041, 77.1025); // Default: Delhi
   String _selectedAddress = '';
   Set<Marker> _markers = {};
   bool _isLoading = false;
+
+  // Cache and monitoring services
+  final _geocodingCache = GeocodingCacheService();
+  final _apiMonitor = APIUsageMonitoringService();
+
+  // Debouncer for map tap events (500ms delay to avoid rapid API calls)
+  late final Debouncer _addressDebouncer = Debouncer(
+    delay: const Duration(milliseconds: 500),
+  );
 
   @override
   void initState() {
@@ -49,6 +59,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
     } else {
       _getCurrentLocation();
     }
+  }
+
+  @override
+  void dispose() {
+    _addressDebouncer.dispose();
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -70,27 +86,80 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
       });
 
       await _getAddressFromCoordinates();
-      _addMarker();
-      _animateToLocation();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error getting location: $e')));
-      }
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _getAddressFromCoordinates() async {
-    try {
-      final placemarks = await geocoding.placemarkFromCoordinates(
+      // Use cached geocoding service to reduce API calls
+      final placemarks = await _geocodingCache.getPlacemarksFromCoordinates(
         _selectedLocation.latitude,
         _selectedLocation.longitude,
       );
 
+      // Track API usage (cache hit/miss handled in service)
+      _apiMonitor.recordGeocodingCall(
+        coordinates:
+            '${_selectedLocation.latitude.toStringAsFixed(6)},${_selectedLocation.longitude.toStringAsFixed(6)}',
+      );
+
       if (placemarks.isNotEmpty) {
+        final place = placemarks.first;
+        if (mounted) {
+          setState(() {
+            final parts =
+                [
+                      place.street,
+                      place.subLocality,
+                      place.locality,
+                      place.administrativeArea,
+                      place.postalCode,
+                      place.country,
+                    ]
+                    .whereType<String>()
+                    .map((value) => value.trim())
+                    .where((value) => value.isNotEmpty);
+            _selectedAddress = parts.join(', ');
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error getting address: $e');
+      if (mounted) {
+        setState(() {
+          _selectedAddress = 'Error fetching address';
+        });
+      }
+    }
+  }
+
+  void _addMarker() {
+    setState(() {
+      _markers = {
+        Marker(
+          markerId: const MarkerId('selected_location'),
+          position: _selectedLocation,
+          infoWindow: InfoWindow(
+            title: 'Selected Location',
+            snippet: _selectedAddress.isEmpty
+                ? 'Loading address...'
+                : _selectedAddress,
+          ),
+        ),
+      };
+    });
+  }
+
+  Future<void> _getAddressFromCoordinates() async {
+    try {
+      // Use cached geocoding service to reduce API calls
+      final placemarks = await _geocodingCache.getPlacemarksFromCoordinates(
+        _selectedLocation.latitude,
+        _selectedLocation.longitude,
+      );
+
+      // Track API usage (cache hit/miss handled in service)
+      _apiMonitor.recordGeocodingCall(
+        coordinates:
+            '${_selectedLocation.latitude.toStringAsFixed(6)},${_selectedLocation.longitude.toStringAsFixed(6)}',
+      );
+
+      if (placemarks.isNotEmpty && mounted) {
         final place = placemarks.first;
         setState(() {
           final parts =
@@ -107,40 +176,32 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   .where((value) => value.isNotEmpty);
           _selectedAddress = parts.join(', ');
         });
+        _addMarker();
       }
     } catch (e) {
       debugPrint('Error getting address: $e');
+      if (mounted) {
+        setState(() {
+          _selectedAddress = 'Error fetching address';
+        });
+        _addMarker();
+      }
     }
-  }
-
-  void _addMarker() {
-    setState(() {
-      _markers = {
-        Marker(
-          markerId: const MarkerId('selected_location'),
-          position: _selectedLocation,
-          infoWindow: InfoWindow(
-            title: 'Selected Location',
-            snippet: _selectedAddress,
-          ),
-        ),
-      };
-    });
-  }
-
-  Future<void> _animateToLocation() async {
-    await _mapController.animateCamera(
-      CameraUpdate.newLatLng(_selectedLocation),
-    );
   }
 
   Future<void> _onMapTap(LatLng latLng) async {
     setState(() {
       _selectedLocation = latLng;
-      _selectedAddress = '';
+      _selectedAddress = 'Loading address...';
     });
     _addMarker();
-    await _getAddressFromCoordinates();
+
+    // Debounce address lookup to avoid rapid API calls when user is dragging/tapping rapidly
+    _addressDebouncer.call(() {
+      if (mounted) {
+        _getAddressFromCoordinates();
+      }
+    });
   }
 
   @override
@@ -176,7 +237,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
         body: Stack(
           children: [
             GoogleMap(
-              onMapCreated: (controller) => _mapController = controller,
               initialCameraPosition: CameraPosition(
                 target: _selectedLocation,
                 zoom: 15,

@@ -1,14 +1,13 @@
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
+import 'package:cementdeliverytracker/core/services/employee_metadata_cache_service.dart';
+import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_add_distributor_dialog.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_distributor_list_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
 
 class EmployeeDashboardPage extends StatefulWidget {
@@ -46,27 +45,39 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
       return;
     }
 
-    // Get the admin ID from user's data
-    final userDoc = await FirebaseFirestore.instance
-        .collection(AppConstants.usersCollection)
-        .doc(user.id)
-        .get();
+    try {
+      // Use cached employee metadata service to reduce Firestore reads
+      final metadataCache = context.read<EmployeeMetadataCacheService>();
+      final apiMonitor = context.read<APIUsageMonitoringService>();
 
-    final adminId = userDoc.data()?['adminId'] as String?;
-    if (adminId == null) {
+      final adminId = await metadataCache.getEmployeeAdminId(user.id);
+
+      apiMonitor.recordFirestoreRead(
+        collection: 'users',
+        operation: 'getEmployeeAdminId',
+      );
+
+      if (adminId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No admin assigned to you')),
+          );
+        }
+        return;
+      }
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No admin assigned to you')),
+        showDialog(
+          context: context,
+          builder: (context) => EmployeeAddDistributorDialog(adminId: adminId),
         );
       }
-      return;
-    }
-
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => EmployeeAddDistributorDialog(adminId: adminId),
-      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading admin info: $e')));
+      }
     }
   }
 

@@ -1,4 +1,7 @@
 import 'package:cementdeliverytracker/core/network/network_info.dart';
+import 'package:cementdeliverytracker/core/services/geocoding_cache_service.dart';
+import 'package:cementdeliverytracker/core/services/employee_metadata_cache_service.dart';
+import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
 import 'package:cementdeliverytracker/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:cementdeliverytracker/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:cementdeliverytracker/features/auth/domain/repositories/auth_repository.dart';
@@ -38,6 +41,11 @@ class DependencyInjection {
     // Network
     final connectivity = Connectivity();
     final networkInfo = NetworkInfoImpl(connectivity: connectivity);
+
+    // Core Services (Singleton instances)
+    final geocodingCacheService = GeocodingCacheService();
+    final employeeMetadataCacheService = EmployeeMetadataCacheService();
+    final apiUsageMonitoringService = APIUsageMonitoringService();
 
     // Firebase instances
     final firebaseAuth = FirebaseAuth.instance;
@@ -185,6 +193,15 @@ class DependencyInjection {
 
     return [
       ...DistributorFeatureProviders.getProviders(),
+      // Core Services
+      Provider<GeocodingCacheService>.value(value: geocodingCacheService),
+      Provider<EmployeeMetadataCacheService>.value(
+        value: employeeMetadataCacheService,
+      ),
+      Provider<APIUsageMonitoringService>.value(
+        value: apiUsageMonitoringService,
+      ),
+      // Network & Repositories
       Provider<NetworkInfo>.value(value: networkInfo),
       Provider<AuthRepository>.value(value: authRepository),
       Provider<DashboardRepository>.value(value: dashboardRepository),

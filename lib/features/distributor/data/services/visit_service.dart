@@ -1,13 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
 import '../models/visit_model.dart';
 
 /// Service for managing visit operations with Firestore and Firestore transactions
+/// Optimized with API usage monitoring and efficient caching
 class VisitService extends ChangeNotifier {
   final FirebaseFirestore _firestore;
+  final APIUsageMonitoringService _apiMonitor = APIUsageMonitoringService();
 
-  // Local cache
-  final Map<String, Visit> _visitCache = {};
+  // Local cache with TTL awareness
+  final Map<String, _CachedVisit> _visitCache = {};
+  final Map<String, _CachedVisitList> _todayVisitsCache = {};
+  static const Duration _cacheTTL = Duration(minutes: 5);
+
   Visit? _activeVisit;
   List<Visit> _todayVisits = [];
   bool _isLoading = false;
@@ -39,6 +45,11 @@ class VisitService extends ChangeNotifier {
       }
 
       // Otherwise query Firestore
+      _apiMonitor.recordFirestoreRead(
+        collection: 'visits',
+        operation: 'getActiveVisit',
+      );
+
       final snapshot = await _firestore
           .collection('visits')
           .where('employeeId', isEqualTo: employeeId)
@@ -53,7 +64,10 @@ class VisitService extends ChangeNotifier {
           ...snapshot.docs.first.data(),
           'id': snapshot.docs.first.id,
         });
-        _visitCache[_activeVisit!.id] = _activeVisit!;
+        _visitCache[_activeVisit!.id] = _CachedVisit(
+          _activeVisit!,
+          DateTime.now(),
+        );
       }
 
       _isLoading = false;
@@ -67,16 +81,37 @@ class VisitService extends ChangeNotifier {
     }
   }
 
-  /// Get all visits for today
+  /// Get all visits for today (with caching)
   Future<List<Visit>> getTodayVisits(String employeeId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
+      // Check cache first
+      final cacheKey = 'today_$employeeId';
+      if (_todayVisitsCache.containsKey(cacheKey)) {
+        final cached = _todayVisitsCache[cacheKey]!;
+        final age = DateTime.now().difference(cached.timestamp);
+
+        if (age < _cacheTTL) {
+          _todayVisits = cached.visits;
+          _isLoading = false;
+          notifyListeners();
+          return _todayVisits;
+        } else {
+          _todayVisitsCache.remove(cacheKey);
+        }
+      }
+
       final now = DateTime.now();
       final startOfDay = DateTime(now.year, now.month, now.day);
-      final endOfDay = startOfDay.add(Duration(days: 1));
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      _apiMonitor.recordFirestoreRead(
+        collection: 'visits',
+        operation: 'getTodayVisits',
+      );
 
       final snapshot = await _firestore
           .collection('visits')
@@ -90,10 +125,14 @@ class VisitService extends ChangeNotifier {
           .map((doc) => Visit.fromFirestore({...doc.data(), 'id': doc.id}))
           .toList();
 
-      // Update cache
+      // Update both caches
       for (final visit in _todayVisits) {
-        _visitCache[visit.id] = visit;
+        _visitCache[visit.id] = _CachedVisit(visit, DateTime.now());
       }
+      _todayVisitsCache[cacheKey] = _CachedVisitList(
+        _todayVisits,
+        DateTime.now(),
+      );
 
       _isLoading = false;
       notifyListeners();
@@ -116,6 +155,11 @@ class VisitService extends ChangeNotifier {
       final startOfDay = DateTime(date.year, date.month, date.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
+      _apiMonitor.recordFirestoreRead(
+        collection: 'visits',
+        operation: 'getVisitsByDate',
+      );
+
       final snapshot = await _firestore
           .collection('visits')
           .where('employeeId', isEqualTo: employeeId)
@@ -130,7 +174,7 @@ class VisitService extends ChangeNotifier {
 
       // Update cache
       for (final visit in visits) {
-        _visitCache[visit.id] = visit;
+        _visitCache[visit.id] = _CachedVisit(visit, DateTime.now());
       }
 
       _isLoading = false;
@@ -175,7 +219,7 @@ class VisitService extends ChangeNotifier {
           .toList();
 
       for (final visit in visits) {
-        _visitCache[visit.id] = visit;
+        _visitCache[visit.id] = _CachedVisit(visit, DateTime.now());
       }
 
       _isLoading = false;
@@ -223,12 +267,20 @@ class VisitService extends ChangeNotifier {
         updatedAt: DateTime.now(),
       );
 
+      _apiMonitor.recordFirestoreWrite(
+        collection: 'visits',
+        operation: 'checkIn',
+      );
+
       final docRef = await _firestore
           .collection('visits')
           .add(visit.toFirestore());
 
       _activeVisit = visit.copyWith(id: docRef.id);
-      _visitCache[docRef.id] = _activeVisit!;
+      _visitCache[docRef.id] = _CachedVisit(_activeVisit!, DateTime.now());
+
+      // Invalidate today's visits cache
+      _todayVisitsCache.remove('today_$employeeId');
 
       notifyListeners();
       return docRef.id;
@@ -250,10 +302,11 @@ class VisitService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final visit = _visitCache[visitId];
-      if (visit == null) {
+      final cached = _visitCache[visitId];
+      if (cached == null) {
         throw Exception('Visit not found');
       }
+      final visit = cached.visit;
 
       if (!visit.isActive) {
         throw Exception('Cannot add task to inactive visit');
@@ -279,7 +332,7 @@ class VisitService extends ChangeNotifier {
           .doc(visitId)
           .update(updatedVisit.toFirestore());
 
-      _visitCache[visitId] = updatedVisit;
+      _visitCache[visitId] = _CachedVisit(updatedVisit, DateTime.now());
       _activeVisit = updatedVisit;
 
       notifyListeners();
@@ -301,10 +354,11 @@ class VisitService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final visit = _visitCache[visitId];
-      if (visit == null) {
+      final cached = _visitCache[visitId];
+      if (cached == null) {
         throw Exception('Visit not found');
       }
+      final visit = cached.visit;
 
       if (!visit.isActive) {
         throw Exception('Visit is already completed');
@@ -324,7 +378,7 @@ class VisitService extends ChangeNotifier {
           .doc(visitId)
           .update(updatedVisit.toFirestore());
 
-      _visitCache[visitId] = updatedVisit;
+      _visitCache[visitId] = _CachedVisit(updatedVisit, DateTime.now());
       // Keep the completed visit visible instead of clearing it
       _activeVisit = updatedVisit;
 
@@ -342,21 +396,33 @@ class VisitService extends ChangeNotifier {
     }
   }
 
-  /// Get visit by ID
+  /// Get visit by ID (with caching)
   Future<Visit?> getVisitById(String id) async {
     // Check cache first
     if (_visitCache.containsKey(id)) {
-      return _visitCache[id];
+      final cached = _visitCache[id]!;
+      final age = DateTime.now().difference(cached.timestamp);
+
+      if (age < _cacheTTL) {
+        return cached.visit;
+      } else {
+        _visitCache.remove(id);
+      }
     }
 
     try {
+      _apiMonitor.recordFirestoreRead(
+        collection: 'visits',
+        operation: 'getVisitById',
+      );
+
       final doc = await _firestore.collection('visits').doc(id).get();
       if (!doc.exists) {
         return null;
       }
 
       final visit = Visit.fromFirestore({...doc.data()!, 'id': doc.id});
-      _visitCache[id] = visit;
+      _visitCache[id] = _CachedVisit(visit, DateTime.now());
       return visit;
     } catch (e) {
       _error = 'Failed to load visit: $e';
@@ -448,9 +514,26 @@ class VisitService extends ChangeNotifier {
   /// Clear all caches
   void clearCache() {
     _visitCache.clear();
+    _todayVisitsCache.clear();
     _activeVisit = null;
     _todayVisits.clear();
     _error = null;
     notifyListeners();
   }
+}
+
+/// Internal class for cached visit with timestamp
+class _CachedVisit {
+  final Visit visit;
+  final DateTime timestamp;
+
+  _CachedVisit(this.visit, this.timestamp);
+}
+
+/// Internal class for cached visit list with timestamp
+class _CachedVisitList {
+  final List<Visit> visits;
+  final DateTime timestamp;
+
+  _CachedVisitList(this.visits, this.timestamp);
 }

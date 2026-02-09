@@ -1,6 +1,8 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
 import 'package:cementdeliverytracker/core/theme/theme_provider.dart';
+import 'package:cementdeliverytracker/core/services/geocoding_cache_service.dart';
+import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_employee_service.dart';
@@ -11,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -180,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               onChanged: (bool value) {
                 themeProvider.toggleTheme();
               },
-              activeTrackColor: AppColors.primary.withValues(alpha:  0.5),
+              activeTrackColor: AppColors.primary.withValues(alpha: 0.5),
             );
           },
         ),
@@ -374,10 +375,16 @@ class _LocationTabState extends State<_LocationTab> {
     double longitude,
   ) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
+      // Use cached geocoding service to reduce API calls
+      final geocodingCache = context.read<GeocodingCacheService>();
+      final apiMonitor = context.read<APIUsageMonitoringService>();
+
+      final placemarks = await geocodingCache.getPlacemarksFromCoordinates(
         latitude,
         longitude,
       );
+
+      apiMonitor.recordGeocodingCall(coordinates: '$latitude,$longitude');
 
       if (placemarks.isNotEmpty && mounted) {
         final place = placemarks.first;
@@ -762,7 +769,7 @@ class _EmployeeManagementTabState extends State<_EmployeeManagementTab> {
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.redAccent.withValues(alpha:  0.3)),
+            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
