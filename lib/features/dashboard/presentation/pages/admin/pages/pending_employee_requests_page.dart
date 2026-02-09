@@ -1,9 +1,10 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_employee_service.dart';
+import 'package:cementdeliverytracker/features/dashboard/domain/usecases/employee_usecases.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PendingEmployeeRequestsPage extends StatefulWidget {
   final String adminId;
@@ -17,8 +18,6 @@ class PendingEmployeeRequestsPage extends StatefulWidget {
 
 class _PendingEmployeeRequestsPageState
     extends State<PendingEmployeeRequestsPage> {
-  late final AdminEmployeeService _employeeService = AdminEmployeeService();
-
   @override
   void initState() {
     super.initState();
@@ -31,68 +30,27 @@ class _PendingEmployeeRequestsPageState
   }
 
   Future<void> _showDebugInfo(BuildContext context) async {
-    try {
-      final allPendingEmployees = await _employeeService
-          .getAllPendingEmployees();
-
-      if (!mounted || !context.mounted) return;
-
-      if (kDebugMode) {
-        debugPrint(
-          'DEBUG: Total pending_employee users: ${allPendingEmployees.docs.length}',
-        );
-      }
-
-      final buffer = StringBuffer('All Pending Employees:\n\n');
-      for (final doc in allPendingEmployees.docs) {
-        final data = doc.data();
-        buffer
-          ..writeln('User: ${data['username'] ?? 'Unknown'}')
-          ..writeln('AdminId: ${data['adminId'] ?? 'NOT SET'}')
-          ..writeln('UserType: ${data['userType']}')
-          ..writeln('Email: ${data['email'] ?? 'N/A'}')
-          ..writeln('---');
-
-        if (kDebugMode) {
-          debugPrint(
-            'DEBUG User: ${data['username']}, AdminId: ${data['adminId']}, UserType: ${data['userType']}',
-          );
-        }
-      }
-
-      if (!mounted || !context.mounted) return;
-
-      await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Debug Info'),
-          content: SingleChildScrollView(child: Text(buffer.toString())),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('DEBUG ERROR: $e');
-      }
-      if (!mounted || !context.mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    // Note: Debug functionality removed as it's no longer needed with proper architecture
+    if (kDebugMode) {
+      debugPrint('DEBUG: adminId = ${widget.adminId}');
     }
+
+    if (!mounted || !context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Debug info logged to console')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final getPendingEmployeesUseCase = context
+        .read<GetPendingEmployeesStreamUseCase>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Pending Employee Requests')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _employeeService.getPendingEmployeesStream(widget.adminId),
+      body: StreamBuilder<Object>(
+        stream: getPendingEmployeesUseCase(widget.adminId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingState();
@@ -102,7 +60,24 @@ class _PendingEmployeeRequestsPageState
             return ErrorState(message: 'Error loading requests');
           }
 
-          final requests = snapshot.data?.docs ?? [];
+          // Handle Either type from use case
+          final either = snapshot.data;
+          if (either == null) {
+            return const LoadingState();
+          }
+
+          // Extract QuerySnapshot from Either
+          QuerySnapshot<Map<String, dynamic>>? querySnapshot;
+          (either as dynamic).fold(
+            (failure) => null,
+            (data) => querySnapshot = data,
+          );
+
+          if (querySnapshot == null) {
+            return ErrorState(message: 'Error loading requests');
+          }
+
+          final requests = querySnapshot!.docs;
 
           if (requests.isEmpty) {
             return EmptyState(
@@ -194,39 +169,47 @@ class _PendingEmployeeRequestsPageState
   }
 
   Future<void> _approveEmployee(BuildContext context, String userId) async {
-    try {
-      await _employeeService.approveEmployee(
-        userId: userId,
-        adminId: widget.adminId,
-      );
-    } catch (e) {
-      if (!context.mounted || !mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to approve: $e')));
-      return;
-    }
+    final approveUseCase = context.read<ApproveEmployeeUseCase>();
+
+    final result = await approveUseCase(
+      userId: userId,
+      adminId: widget.adminId,
+    );
 
     if (!context.mounted || !mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Employee approved')));
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to approve: ${failure.message}')),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Employee approved')));
+      },
+    );
   }
 
   Future<void> _rejectEmployee(BuildContext context, String userId) async {
-    try {
-      await _employeeService.rejectEmployee(userId);
-    } catch (e) {
-      if (!context.mounted || !mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to reject: $e')));
-      return;
-    }
+    final rejectUseCase = context.read<RejectEmployeeUseCase>();
+
+    final result = await rejectUseCase(userId);
 
     if (!context.mounted || !mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Employee request rejected')));
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to reject: ${failure.message}')),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Employee request rejected')),
+        );
+      },
+    );
   }
 }

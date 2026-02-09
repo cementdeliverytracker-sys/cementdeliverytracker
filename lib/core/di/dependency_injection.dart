@@ -5,9 +5,17 @@ import 'package:cementdeliverytracker/features/auth/domain/repositories/auth_rep
 import 'package:cementdeliverytracker/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:cementdeliverytracker/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/datasources/employee_remote_data_source.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/datasources/distributor_remote_data_source.dart';
 import 'package:cementdeliverytracker/features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/repositories/employee_repository_impl.dart';
+import 'package:cementdeliverytracker/features/dashboard/data/repositories/distributor_repository_impl.dart';
 import 'package:cementdeliverytracker/features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:cementdeliverytracker/features/dashboard/domain/repositories/employee_repository.dart';
+import 'package:cementdeliverytracker/features/dashboard/domain/repositories/distributor_repository.dart';
 import 'package:cementdeliverytracker/features/dashboard/domain/usecases/dashboard_usecases.dart';
+import 'package:cementdeliverytracker/features/dashboard/domain/usecases/employee_usecases.dart';
+import 'package:cementdeliverytracker/features/dashboard/domain/usecases/distributor_usecases.dart';
 import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'package:cementdeliverytracker/features/orders/data/datasources/order_remote_data_source.dart';
 import 'package:cementdeliverytracker/features/orders/data/repositories/order_repository_impl.dart';
@@ -102,6 +110,55 @@ class DependencyInjection {
       getPendingUsersUseCase: getPendingUsersUseCase,
     );
 
+    // Employee Data Source
+    final employeeRemoteDataSource = EmployeeRemoteDataSourceImpl(
+      firestore: firestore,
+    );
+
+    // Employee Repository
+    final EmployeeRepository employeeRepository = EmployeeRepositoryImpl(
+      remoteDataSource: employeeRemoteDataSource,
+      networkInfo: networkInfo,
+    );
+
+    // Employee Use Cases
+    final approveEmployeeUseCase = ApproveEmployeeUseCase(employeeRepository);
+    final rejectEmployeeUseCase = RejectEmployeeUseCase(employeeRepository);
+    final removeEmployeeUseCase = RemoveEmployeeUseCase(employeeRepository);
+    final getEmployeesStreamUseCase = GetEmployeesStreamUseCase(
+      employeeRepository,
+    );
+    final getPendingEmployeesStreamUseCase = GetPendingEmployeesStreamUseCase(
+      employeeRepository,
+    );
+    final logoffAllEmployeesUseCase = LogoffAllEmployeesUseCase(
+      employeeRepository,
+    );
+
+    // Distributor Data Source
+    final distributorRemoteDataSource = DistributorRemoteDataSourceImpl(
+      firestore: firestore,
+    );
+
+    // Distributor Repository
+    final DistributorRepository distributorRepository =
+        DistributorRepositoryImpl(
+          remoteDataSource: distributorRemoteDataSource,
+          networkInfo: networkInfo,
+        );
+
+    // Distributor Use Cases
+    final getDistributorsStreamUseCase = GetDistributorsStreamUseCase(
+      distributorRepository,
+    );
+    final addDistributorUseCase = AddDistributorUseCase(distributorRepository);
+    final updateDistributorUseCase = UpdateDistributorUseCase(
+      distributorRepository,
+    );
+    final deleteDistributorUseCase = DeleteDistributorUseCase(
+      distributorRepository,
+    );
+
     // Orders Data Source
     final orderRemoteDataSource = OrderRemoteDataSourceImpl(
       firestore: firestore,
@@ -131,7 +188,29 @@ class DependencyInjection {
       Provider<NetworkInfo>.value(value: networkInfo),
       Provider<AuthRepository>.value(value: authRepository),
       Provider<DashboardRepository>.value(value: dashboardRepository),
+      Provider<EmployeeRepository>.value(value: employeeRepository),
+      Provider<DistributorRepository>.value(value: distributorRepository),
       Provider<OrderRepository>.value(value: orderRepository),
+      // Use Cases
+      Provider<ApproveEmployeeUseCase>.value(value: approveEmployeeUseCase),
+      Provider<RejectEmployeeUseCase>.value(value: rejectEmployeeUseCase),
+      Provider<RemoveEmployeeUseCase>.value(value: removeEmployeeUseCase),
+      Provider<GetEmployeesStreamUseCase>.value(
+        value: getEmployeesStreamUseCase,
+      ),
+      Provider<GetPendingEmployeesStreamUseCase>.value(
+        value: getPendingEmployeesStreamUseCase,
+      ),
+      Provider<LogoffAllEmployeesUseCase>.value(
+        value: logoffAllEmployeesUseCase,
+      ),
+      Provider<GetDistributorsStreamUseCase>.value(
+        value: getDistributorsStreamUseCase,
+      ),
+      Provider<AddDistributorUseCase>.value(value: addDistributorUseCase),
+      Provider<UpdateDistributorUseCase>.value(value: updateDistributorUseCase),
+      Provider<DeleteDistributorUseCase>.value(value: deleteDistributorUseCase),
+      // Notifiers
       ChangeNotifierProvider<AuthNotifier>.value(value: authNotifier),
       ChangeNotifierProvider<DashboardProvider>.value(value: dashboardProvider),
       ChangeNotifierProvider<OrdersProvider>.value(value: ordersProvider),
