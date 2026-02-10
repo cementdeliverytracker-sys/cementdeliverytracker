@@ -200,7 +200,12 @@ class _VisitHistoryWidgetState extends State<VisitHistoryWidget> {
     final groupedVisits = _groupVisitsByDate(_visits);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      padding: EdgeInsets.fromLTRB(
+        12,
+        0,
+        12,
+        MediaQuery.of(context).padding.bottom + 12,
+      ),
       children: groupedVisits.entries
           .expand(
             (entry) => [

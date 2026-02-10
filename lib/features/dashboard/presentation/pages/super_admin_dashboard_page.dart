@@ -27,9 +27,31 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
   }
 
   Future<void> _handleApproveUser(String userId) async {
+    // Get admin name before approval
+    String adminName = 'Admin';
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+      adminName = (doc.data()?['username'] ?? 'Admin') as String;
+    } catch (_) {}
+
     await context.read<DashboardProvider>().approveUser(userId);
     if (mounted) {
-      AppUtils.showSnackBar(context, 'User approved as Admin');
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Success'),
+          content: Text('$adminName has been added successfully.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -57,7 +79,26 @@ class _SuperAdminDashboardPageState extends State<SuperAdminDashboardPage> {
         actions: [
           IconButton(
             onPressed: () async {
-              await context.read<AuthNotifier>().logout();
+              final navigator = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
+              final authNotifier = context.read<AuthNotifier>();
+              await authNotifier.logout();
+              if (!mounted) return;
+              if (authNotifier.state == AuthState.unauthenticated) {
+                navigator.pushNamedAndRemoveUntil(
+                  AppConstants.routeLogin,
+                  (route) => false,
+                );
+                return;
+              }
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    authNotifier.errorMessage ??
+                        'Logout failed. Please try again.',
+                  ),
+                ),
+              );
             },
             icon: const Icon(Icons.logout),
           ),

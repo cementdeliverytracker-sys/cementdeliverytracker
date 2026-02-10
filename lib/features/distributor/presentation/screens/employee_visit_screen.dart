@@ -536,7 +536,12 @@ class _EmployeeVisitScreenState extends State<EmployeeVisitScreen>
                   child: _isLoadingActiveVisit
                       ? const Center(child: CircularProgressIndicator())
                       : ListView(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            top: 16,
+                            bottom: MediaQuery.of(context).padding.bottom + 16,
+                          ),
                           children: [
                             // Status Widget
                             VisitStatusWidget(visit: _activeVisit),

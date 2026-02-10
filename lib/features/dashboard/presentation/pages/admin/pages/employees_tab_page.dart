@@ -136,7 +136,7 @@ class EmployeesTabPage extends StatelessWidget {
                     BoxShadow(
                       color: Theme.of(
                         context,
-                      ).shadowColor.withValues(alpha:  0.3),
+                      ).shadowColor.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, -2),
                     ),
@@ -260,59 +260,66 @@ class _EmployeesListFullPageState extends State<EmployeesListFullPage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                UserAvatar(name: name, radius: 24),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  UserAvatar(name: name, radius: 24),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    Text(role, style: Theme.of(ctx).textTheme.bodySmall),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            DetailRow(label: 'Employee ID', value: employeeId),
-            DetailRow(label: 'Email', value: email),
-            DetailRow(label: 'Age', value: age),
-            DetailRow(label: 'Phone', value: phone),
-            DetailRow(label: 'Address', value: address),
-            DetailRow(label: 'Role', value: role),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Close'),
-                ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
+                      Text(role, style: Theme.of(ctx).textTheme.bodySmall),
+                    ],
                   ),
-                  onPressed: () async {
-                    Navigator.pop(ctx);
-                    await _confirmRemoveEmployee(context, userId);
-                  },
-                  icon: const Icon(Icons.person_remove_alt_1),
-                  label: const Text('Remove'),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 16),
+              DetailRow(label: 'Employee ID', value: employeeId),
+              DetailRow(label: 'Email', value: email),
+              DetailRow(label: 'Age', value: age),
+              DetailRow(label: 'Phone', value: phone),
+              DetailRow(label: 'Address', value: address),
+              DetailRow(label: 'Role', value: role),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Close'),
+                  ),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      await _confirmRemoveEmployee(context, userId);
+                    },
+                    icon: const Icon(Icons.person_remove_alt_1),
+                    label: const Text('Remove'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

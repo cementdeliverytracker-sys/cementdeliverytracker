@@ -36,6 +36,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   String _selectedAddress = '';
   Set<Marker> _markers = {};
   bool _isLoading = false;
+  GoogleMapController? _mapController;
 
   // Cache and monitoring services
   final _geocodingCache = GeocodingCacheService();
@@ -64,6 +65,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   @override
   void dispose() {
     _addressDebouncer.dispose();
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -81,49 +83,31 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
         ),
       );
 
-      setState(() {
-        _selectedLocation = LatLng(position.latitude, position.longitude);
-      });
-
-      await _getAddressFromCoordinates();
-      // Use cached geocoding service to reduce API calls
-      final placemarks = await _geocodingCache.getPlacemarksFromCoordinates(
-        _selectedLocation.latitude,
-        _selectedLocation.longitude,
-      );
-
-      // Track API usage (cache hit/miss handled in service)
-      _apiMonitor.recordGeocodingCall(
-        coordinates:
-            '${_selectedLocation.latitude.toStringAsFixed(6)},${_selectedLocation.longitude.toStringAsFixed(6)}',
-      );
-
-      if (placemarks.isNotEmpty) {
-        final place = placemarks.first;
-        if (mounted) {
-          setState(() {
-            final parts =
-                [
-                      place.street,
-                      place.subLocality,
-                      place.locality,
-                      place.administrativeArea,
-                      place.postalCode,
-                      place.country,
-                    ]
-                    .whereType<String>()
-                    .map((value) => value.trim())
-                    .where((value) => value.isNotEmpty);
-            _selectedAddress = parts.join(', ');
-          });
+      if (mounted) {
+        setState(() {
+          _selectedLocation = LatLng(position.latitude, position.longitude);
+        });
+        // Animate camera to the new location
+        if (_mapController != null) {
+          await _mapController!.animateCamera(
+            CameraUpdate.newLatLng(_selectedLocation),
+          );
         }
       }
+
+      await _getAddressFromCoordinates();
+
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     } catch (e) {
-      debugPrint('Error getting address: $e');
+      debugPrint('Error getting current location: $e');
       if (mounted) {
         setState(() {
           _selectedAddress = 'Error fetching address';
+          _isLoading = false;
         });
+        _addMarker();
       }
     }
   }
@@ -243,6 +227,11 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               ),
               markers: _markers,
               onTap: _onMapTap,
+              onMapCreated: (controller) {
+                setState(() {
+                  _mapController = controller;
+                });
+              },
             ),
             if (_isLoading)
               Container(
@@ -266,7 +255,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: MediaQuery.of(context).padding.bottom + 16,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,

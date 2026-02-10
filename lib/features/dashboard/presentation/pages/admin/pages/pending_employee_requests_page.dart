@@ -29,19 +29,6 @@ class _PendingEmployeeRequestsPageState
     }
   }
 
-  Future<void> _showDebugInfo(BuildContext context) async {
-    // Note: Debug functionality removed as it's no longer needed with proper architecture
-    if (kDebugMode) {
-      debugPrint('DEBUG: adminId = ${widget.adminId}');
-    }
-
-    if (!mounted || !context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Debug info logged to console')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final getPendingEmployeesUseCase = context
@@ -80,13 +67,9 @@ class _PendingEmployeeRequestsPageState
           final requests = querySnapshot!.docs;
 
           if (requests.isEmpty) {
-            return EmptyState(
+            return const EmptyState(
               message: 'No pending requests',
               icon: Icons.inbox_outlined,
-              action: ElevatedButton(
-                onPressed: () => _showDebugInfo(context),
-                child: const Text('Show Debug Info'),
-              ),
             );
           }
 
@@ -169,25 +152,49 @@ class _PendingEmployeeRequestsPageState
   }
 
   Future<void> _approveEmployee(BuildContext context, String userId) async {
+    // Get employee name before approval
+    String employeeName = 'Employee';
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection(AppConstants.usersCollection)
+          .doc(userId)
+          .get();
+      employeeName = (doc.data()?['username'] ?? 'Employee') as String;
+    } catch (_) {}
+
+    if (!mounted) return;
+
     final approveUseCase = context.read<ApproveEmployeeUseCase>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
 
     final result = await approveUseCase(
       userId: userId,
       adminId: widget.adminId,
     );
 
-    if (!context.mounted || !mounted) return;
+    if (!mounted) return;
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(content: Text('Failed to approve: ${failure.message}')),
         );
       },
       (_) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Employee approved')));
+        showDialog(
+          context: navigator.context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Success'),
+            content: Text('$employeeName has been added successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
       },
     );
   }

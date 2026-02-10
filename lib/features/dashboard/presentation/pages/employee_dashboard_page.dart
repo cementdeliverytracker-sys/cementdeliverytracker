@@ -1,4 +1,5 @@
 import 'package:cementdeliverytracker/core/theme/app_colors.dart';
+import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/services/employee_metadata_cache_service.dart';
 import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
@@ -101,7 +102,26 @@ class _EmployeeDashboardPageState extends State<EmployeeDashboardPage> {
         actions: [
           IconButton(
             onPressed: () async {
-              await context.read<AuthNotifier>().logout();
+              final navigator = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
+              final authNotifier = context.read<AuthNotifier>();
+              await authNotifier.logout();
+              if (!mounted) return;
+              if (authNotifier.state == AuthState.unauthenticated) {
+                navigator.pushNamedAndRemoveUntil(
+                  AppConstants.routeLogin,
+                  (route) => false,
+                );
+                return;
+              }
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    authNotifier.errorMessage ??
+                        'Logout failed. Please try again.',
+                  ),
+                ),
+              );
             },
             icon: const Icon(Icons.logout),
           ),

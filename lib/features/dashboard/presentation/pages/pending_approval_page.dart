@@ -1,12 +1,21 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:cementdeliverytracker/features/auth/presentation/pages/role_selection_page.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/admin_dashboard_page.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/pages/employee_dashboard_page.dart';
+import 'package:cementdeliverytracker/features/dashboard/presentation/pages/super_admin_dashboard_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class PendingApprovalPage extends StatelessWidget {
+class PendingApprovalPage extends StatefulWidget {
   const PendingApprovalPage({super.key});
 
+  @override
+  State<PendingApprovalPage> createState() => _PendingApprovalPageState();
+}
+
+class _PendingApprovalPageState extends State<PendingApprovalPage> {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthNotifier>().user;
@@ -15,25 +24,84 @@ class PendingApprovalPage extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
           .collection(AppConstants.usersCollection)
           .doc(user.id)
-          .get(),
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 12),
+                  Text(
+                    'Checking your approval status...',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
           );
         }
 
-        final userData = snapshot.data?.data() as Map<String, dynamic>?;
-        final userType = userData?['userType'] ?? AppConstants.userTypePending;
+        if (snapshot.hasError) {
+          return _buildErrorPage();
+        }
+
+        final userData = snapshot.data?.data();
+        final userType =
+            (userData?['userType'] as String?) ?? AppConstants.userTypePending;
         final isEmployeeRequest =
             userType == AppConstants.userTypePendingEmployee;
 
+        switch (userType) {
+          case AppConstants.userTypeSuperAdmin:
+            return const SuperAdminDashboardPage();
+          case AppConstants.userTypeAdmin:
+            return const AdminDashboardPage();
+          case AppConstants.userTypeEmployee:
+            return const EmployeeDashboardPage();
+          case AppConstants.userTypeTempEmployee:
+            return const RoleSelectionPage();
+          case AppConstants.userTypePending:
+          case AppConstants.userTypePendingEmployee:
+            break;
+          default:
+            break;
+        }
+
         return _buildPendingPage(context, user, isEmployeeRequest);
       },
+    );
+  }
+
+  Scaffold _buildErrorPage() {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.defaultPadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 12),
+              const Text(
+                'Unable to check approval status. Please try again.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => setState(() {}),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -50,10 +118,25 @@ class PendingApprovalPage extends StatelessWidget {
           IconButton(
             onPressed: () async {
               final navigator = Navigator.of(context);
-              await context.read<AuthNotifier>().logout();
-              if (context.mounted) {
-                navigator.pushNamedAndRemoveUntil('/login', (route) => false);
+              final messenger = ScaffoldMessenger.of(context);
+              final authNotifier = context.read<AuthNotifier>();
+              await authNotifier.logout();
+              if (!context.mounted) return;
+              if (authNotifier.state == AuthState.unauthenticated) {
+                navigator.pushNamedAndRemoveUntil(
+                  AppConstants.routeLogin,
+                  (route) => false,
+                );
+                return;
               }
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    authNotifier.errorMessage ??
+                        'Logout failed. Please try again.',
+                  ),
+                ),
+              );
             },
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',

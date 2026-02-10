@@ -79,8 +79,59 @@ class App extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatelessWidget {
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  String? _lastUserId;
+  String? _lastUserType;
+
+  void _maybeShowApprovalSnack(String userId, String userType) {
+    if (_lastUserId != userId) {
+      _lastUserId = userId;
+      _lastUserType = userType;
+      return;
+    }
+
+    final wasPending =
+        _lastUserType == AppConstants.userTypePending ||
+        _lastUserType == AppConstants.userTypePendingEmployee;
+    final isApproved =
+        userType == AppConstants.userTypeAdmin ||
+        userType == AppConstants.userTypeEmployee;
+
+    if (wasPending && isApproved) {
+      final roleLabel = userType == AppConstants.userTypeAdmin
+          ? 'Admin'
+          : 'Employee';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppColors.success,
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: AppColors.onPrimary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Your account was approved as $roleLabel.',
+                    style: const TextStyle(color: AppColors.onPrimary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+    }
+
+    _lastUserType = userType;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,26 +144,47 @@ class AuthGate extends StatelessWidget {
           return const SplashPage();
         }
 
+        if (snapshot.hasError) {
+          return _AuthGateErrorPage(
+            message: 'Failed to check login state. Please try again.',
+            onRetry: () => setState(() {}),
+          );
+        }
+
         final user = snapshot.data;
         if (user == null) {
+          _lastUserId = null;
+          _lastUserType = null;
           return const LoginPage();
         }
 
-        return FutureBuilder<UserProfile?>(
-          future: authNotifier.loadUserProfile(user.id),
+        return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection(AppConstants.usersCollection)
+              .doc(user.id)
+              .snapshots(),
           builder: (ctx, userSnapshot) {
             if (userSnapshot.connectionState == ConnectionState.waiting) {
               return const SplashPage();
             }
 
-            final userProfile = userSnapshot.data;
-            if (userProfile == null) {
+            if (userSnapshot.hasError) {
+              return _AuthGateErrorPage(
+                message: 'Failed to load your profile. Please try again.',
+                onRetry: () => setState(() {}),
+              );
+            }
+
+            final doc = userSnapshot.data;
+            if (doc == null || !doc.exists) {
               return const _MissingProfilePage();
             }
 
-            final userType = userProfile.userType.isNotEmpty
-                ? userProfile.userType
-                : AppConstants.userTypePending;
+            final data = doc.data();
+            final userType =
+                (data?['userType'] as String?) ?? AppConstants.userTypePending;
+            _maybeShowApprovalSnack(user.id, userType);
+
             switch (userType) {
               case AppConstants.userTypeSuperAdmin:
                 return const SuperAdminDashboardPage();
@@ -131,6 +203,38 @@ class AuthGate extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _AuthGateErrorPage extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _AuthGateErrorPage({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppConstants.defaultPadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

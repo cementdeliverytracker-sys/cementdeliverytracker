@@ -369,88 +369,95 @@ class _DistributorsScreenState extends State<DistributorsScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              data['name'] ?? 'Distributor',
-              style: Theme.of(
-                ctx,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            _infoRow('Phone', data['phone']),
-            _infoRow('Email', data['email']),
-            _infoRow('Location', data['location']),
-            _infoRow('Region', data['region']),
-            _infoRow('Created', _formatDate(data['createdAt'])),
-            if (data['createdByName'] != null ||
-                data['createdByType'] != null) ...[
-              _infoRow(
-                'Added By',
-                '${data['createdByName'] ?? 'Unknown'} (${data['createdByType'] ?? 'admin'})',
-              ),
-            ],
-            if (data['latitude'] != null && data['longitude'] != null) ...[
-              _infoRow(
-                'Coordinates',
-                '${(data['latitude'] as num?)?.toStringAsFixed(6)}, ${(data['longitude'] as num?)?.toStringAsFixed(6)}',
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                data['name'] ?? 'Distributor',
+                style: Theme.of(
+                  ctx,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final latitude = data['latitude'] as num?;
-                  final longitude = data['longitude'] as num?;
-                  if (latitude != null && longitude != null) {
-                    Navigator.push<LocationPickerResult>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LocationPickerWidget(
-                          initialLocation: LocationPickerResult(
-                            latitude: latitude.toDouble(),
-                            longitude: longitude.toDouble(),
-                            address: data['location'] ?? 'Location',
-                          ),
-                          onLocationSelected: (_) {},
-                        ),
-                      ),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.map),
-                label: const Text('View on Map'),
-              ),
-            ],
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => _openDistributorForm(
-                    context,
-                    adminId,
-                    docId: distributorId,
-                    existing: data,
-                  ),
-                  child: const Text('Edit'),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: () async {
-                    await _service.deleteDistributor(distributorId);
-                    if (Navigator.canPop(ctx)) Navigator.pop(ctx);
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.redAccent,
-                  ),
-                  child: const Text('Remove'),
+              _infoRow('Phone', data['phone']),
+              _infoRow('Email', data['email']),
+              _infoRow('Location', data['location']),
+              _infoRow('Region', data['region']),
+              _infoRow('Created', _formatDate(data['createdAt'])),
+              if (data['createdByName'] != null ||
+                  data['createdByType'] != null) ...[
+                _infoRow(
+                  'Added By',
+                  '${data['createdByName'] ?? 'Unknown'} (${data['createdByType'] ?? 'admin'})',
                 ),
               ],
-            ),
-          ],
+              if (data['latitude'] != null && data['longitude'] != null) ...[
+                _infoRow(
+                  'Coordinates',
+                  '${(data['latitude'] as num?)?.toStringAsFixed(6)}, ${(data['longitude'] as num?)?.toStringAsFixed(6)}',
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final latitude = data['latitude'] as num?;
+                    final longitude = data['longitude'] as num?;
+                    if (latitude != null && longitude != null) {
+                      Navigator.push<LocationPickerResult>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LocationPickerWidget(
+                            initialLocation: LocationPickerResult(
+                              latitude: latitude.toDouble(),
+                              longitude: longitude.toDouble(),
+                              address: data['location'] ?? 'Location',
+                            ),
+                            onLocationSelected: (_) {},
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.map),
+                  label: const Text('View on Map'),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => _openDistributorForm(
+                      context,
+                      adminId,
+                      docId: distributorId,
+                      existing: data,
+                    ),
+                    child: const Text('Edit'),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () async {
+                      await _service.deleteDistributor(distributorId);
+                      if (Navigator.canPop(ctx)) Navigator.pop(ctx);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.redAccent,
+                    ),
+                    child: const Text('Remove'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

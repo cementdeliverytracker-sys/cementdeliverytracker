@@ -1,6 +1,7 @@
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
 import 'package:cementdeliverytracker/core/utils/app_utils.dart';
 import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:cementdeliverytracker/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    var navigated = false;
 
     try {
       final authNotifier = context.read<AuthNotifier>();
@@ -43,9 +45,13 @@ class _LoginPageState extends State<LoginPage> {
       if (!isAuthenticated) {
         throw StateError('Login did not authenticate');
       }
-      // AuthGate (in main.dart) will automatically swap to the right dashboard
-      // when auth state changes. Keep the loader visible until this page is
-      // replaced by the new root.
+      if (!mounted) return;
+      navigated = true;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AuthGate()),
+        (route) => false,
+      );
+      return;
     } on FirebaseAuthException catch (e) {
       String message;
       switch (e.code) {
@@ -72,6 +78,10 @@ class _LoginPageState extends State<LoginPage> {
         isError: true,
       );
       setState(() => _isLoading = false);
+    } finally {
+      if (mounted && !navigated) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

@@ -231,7 +231,26 @@ class _SettingsScreenState extends State<SettingsScreen>
           leading: Icon(Icons.logout, color: Theme.of(context).iconTheme.color),
           title: const Text('Logout'),
           onTap: () async {
-            await context.read<AuthNotifier>().logout();
+            final navigator = Navigator.of(context);
+            final messenger = ScaffoldMessenger.of(context);
+            final authNotifier = context.read<AuthNotifier>();
+            await authNotifier.logout();
+            if (!mounted) return;
+            if (authNotifier.state == AuthState.unauthenticated) {
+              navigator.pushNamedAndRemoveUntil(
+                AppConstants.routeLogin,
+                (route) => false,
+              );
+              return;
+            }
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(
+                  authNotifier.errorMessage ??
+                      'Logout failed. Please try again.',
+                ),
+              ),
+            );
           },
         ),
       ],

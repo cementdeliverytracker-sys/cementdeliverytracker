@@ -107,18 +107,22 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['adminId', 'employeeRequestData']);
       
       // Admin can approve pending_employee requests (pending_employee -> employee)
+      // Allow additional fields: employeeRequestData, updatedAt
       allow update: if isAdmin(request.auth.uid)
         && resource.data.adminId == request.auth.uid
         && resource.data.userType == 'pending_employee'
         && request.resource.data.userType == 'employee'
         && request.resource.data.adminId == request.auth.uid
-        && request.resource.data.keys().hasAll(['employeeId']);
+        && request.resource.data.keys().hasAll(['employeeId'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['email', 'username', 'phone']));
       
       // Admin can reject pending_employee requests (pending_employee -> temp_employee)
+      // Allow deletion of employeeRequestData and adminId fields
       allow update: if isAdmin(request.auth.uid)
         && resource.data.adminId == request.auth.uid
         && resource.data.userType == 'pending_employee'
-        && request.resource.data.userType == 'temp_employee';
+        && request.resource.data.userType == 'temp_employee'
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['email', 'username', 'phone']));
 
       // Admin can update their team members (but not userType or adminId)
       allow update: if isAdmin(request.auth.uid)
