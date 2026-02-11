@@ -210,7 +210,14 @@ class _VisitHistoryWidgetState extends State<VisitHistoryWidget> {
           .expand(
             (entry) => [
               _DateHeader(date: entry.key),
-              ...entry.value.map((visit) => _VisitCard(visit: visit)).toList(),
+              ...entry.value
+                  .map(
+                    (visit) => _VisitCard(
+                      visit: visit,
+                      onTasksEdited: () => _loadVisits(),
+                    ),
+                  )
+                  .toList(),
               const SizedBox(height: 8),
             ],
           )
@@ -294,8 +301,9 @@ class _DateHeader extends StatelessWidget {
 /// Card displaying a single visit
 class _VisitCard extends StatelessWidget {
   final Visit visit;
+  final VoidCallback? onTasksEdited;
 
-  const _VisitCard({required this.visit});
+  const _VisitCard({required this.visit, this.onTasksEdited});
 
   @override
   Widget build(BuildContext context) {
@@ -390,6 +398,17 @@ class _VisitCard extends StatelessWidget {
                       color: statusColor,
                     ),
                   ),
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: Icon(Icons.edit, size: 18, color: statusColor.shade700),
+                  tooltip: 'Edit Tasks',
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                  onPressed: () => _showEditTasksDialog(context),
                 ),
               ],
             ),
@@ -566,5 +585,293 @@ class _VisitCard extends StatelessWidget {
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
     return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
+  }
+
+  void _showEditTasksDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => _EditTasksSheet(
+        visit: visit,
+        onSaved: () {
+          Navigator.of(context).pop();
+          onTasksEdited?.call();
+        },
+      ),
+    );
+  }
+}
+
+/// Bottom sheet for editing tasks
+class _EditTasksSheet extends StatefulWidget {
+  final Visit visit;
+  final VoidCallback onSaved;
+
+  const _EditTasksSheet({required this.visit, required this.onSaved});
+
+  @override
+  State<_EditTasksSheet> createState() => _EditTasksSheetState();
+}
+
+class _EditTasksSheetState extends State<_EditTasksSheet> {
+  late List<VisitTask> _tasks;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Create a copy of tasks to edit
+    _tasks = widget.visit.tasks
+        .map(
+          (t) => VisitTask(
+            id: t.id,
+            visitId: t.visitId,
+            type: t.type,
+            description: t.description,
+            timestamp: t.timestamp,
+            metadata: t.metadata != null
+                ? Map<String, dynamic>.from(t.metadata!)
+                : null,
+          ),
+        )
+        .toList();
+  }
+
+  Future<void> _saveChanges() async {
+    setState(() => _isSaving = true);
+
+    try {
+      final repository = Provider.of<DistributorRepository>(
+        context,
+        listen: false,
+      );
+      await repository.updateVisitTasks(
+        visitId: widget.visit.id,
+        tasks: _tasks,
+      );
+      widget.onSaved();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  void _addTask() {
+    setState(() {
+      _tasks.add(
+        VisitTask(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          visitId: widget.visit.id,
+          type: TaskType.other,
+          description: '',
+          timestamp: DateTime.now(),
+        ),
+      );
+    });
+  }
+
+  void _deleteTask(int index) {
+    setState(() {
+      _tasks.removeAt(index);
+    });
+  }
+
+  void _updateTaskType(int index, TaskType type) {
+    setState(() {
+      _tasks[index] = VisitTask(
+        id: _tasks[index].id,
+        visitId: _tasks[index].visitId,
+        type: type,
+        description: _tasks[index].description,
+        timestamp: _tasks[index].timestamp,
+        metadata: _tasks[index].metadata,
+      );
+    });
+  }
+
+  void _updateTaskDescription(int index, String description) {
+    _tasks[index] = VisitTask(
+      id: _tasks[index].id,
+      visitId: _tasks[index].visitId,
+      type: _tasks[index].type,
+      description: description,
+      timestamp: _tasks[index].timestamp,
+      metadata: _tasks[index].metadata,
+    );
+  }
+
+  void _updateTaskAmount(int index, String amount) {
+    final metadata = _tasks[index].metadata ?? {};
+    if (amount.isNotEmpty) {
+      metadata['amount'] = amount;
+    } else {
+      metadata.remove('amount');
+    }
+    _tasks[index] = VisitTask(
+      id: _tasks[index].id,
+      visitId: _tasks[index].visitId,
+      type: _tasks[index].type,
+      description: _tasks[index].description,
+      timestamp: _tasks[index].timestamp,
+      metadata: metadata.isNotEmpty ? metadata : null,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Edit Tasks',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Visit: ${widget.visit.distributorName}',
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
+          const Divider(height: 24),
+
+          // Tasks list
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.5,
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _tasks.length,
+              itemBuilder: (context, index) {
+                final task = _tasks[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<TaskType>(
+                                value: task.type,
+                                decoration: const InputDecoration(
+                                  labelText: 'Task Type',
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  border: OutlineInputBorder(),
+                                  isDense: true,
+                                ),
+                                items: TaskType.values.map((type) {
+                                  return DropdownMenuItem(
+                                    value: type,
+                                    child: Text(type.displayName),
+                                  );
+                                }).toList(),
+                                onChanged: (type) {
+                                  if (type != null) {
+                                    _updateTaskType(index, type);
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteTask(index),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          initialValue: task.description,
+                          decoration: const InputDecoration(
+                            labelText: 'Description',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          onChanged: (value) =>
+                              _updateTaskDescription(index, value),
+                        ),
+                        if (task.type == TaskType.collectMoney) ...[
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            initialValue:
+                                task.metadata?['amount']?.toString() ?? '',
+                            decoration: const InputDecoration(
+                              labelText: 'Amount (₹)',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) =>
+                                _updateTaskAmount(index, value),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Add task button
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _addTask,
+            icon: const Icon(Icons.add),
+            label: const Text('Add Task'),
+          ),
+
+          // Save button
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isSaving ? null : _saveChanges,
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save Changes'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

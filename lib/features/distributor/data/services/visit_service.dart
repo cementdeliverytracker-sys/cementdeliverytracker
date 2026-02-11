@@ -396,6 +396,56 @@ class VisitService extends ChangeNotifier {
     }
   }
 
+  /// Update tasks for a visit (allows editing tasks after completion)
+  Future<void> updateVisitTasks({
+    required String visitId,
+    required List<VisitTask> tasks,
+  }) async {
+    _error = null;
+    notifyListeners();
+
+    try {
+      // First fetch the visit if not in cache
+      Visit? visit;
+      if (_visitCache.containsKey(visitId)) {
+        visit = _visitCache[visitId]!.visit;
+      } else {
+        final doc = await _firestore.collection('visits').doc(visitId).get();
+        if (!doc.exists) {
+          throw Exception('Visit not found');
+        }
+        visit = Visit.fromFirestore({...doc.data()!, 'id': visitId});
+      }
+
+      final updatedVisit = visit.copyWith(
+        tasks: tasks,
+        updatedAt: DateTime.now(),
+      );
+
+      await _firestore
+          .collection('visits')
+          .doc(visitId)
+          .update(updatedVisit.toFirestore());
+
+      _visitCache[visitId] = _CachedVisit(updatedVisit, DateTime.now());
+
+      // Update in today's visits cache if present
+      final index = _todayVisits.indexWhere((v) => v.id == visitId);
+      if (index != -1) {
+        _todayVisits[index] = updatedVisit;
+      }
+
+      // Clear list caches to force refresh
+      _todayVisitsCache.clear();
+
+      notifyListeners();
+    } catch (e) {
+      _error = 'Failed to update tasks: $e';
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   /// Get visit by ID (with caching)
   Future<Visit?> getVisitById(String id) async {
     // Check cache first

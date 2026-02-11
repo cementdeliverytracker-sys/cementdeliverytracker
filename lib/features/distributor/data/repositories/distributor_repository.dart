@@ -161,6 +161,13 @@ class DistributorRepository extends ChangeNotifier {
     );
   }
 
+  Future<void> updateVisitTasks({
+    required String visitId,
+    required List<VisitTask> tasks,
+  }) {
+    return _visitService.updateVisitTasks(visitId: visitId, tasks: tasks);
+  }
+
   Future<Visit?> getVisitById(String id) {
     return _visitService.getVisitById(id);
   }

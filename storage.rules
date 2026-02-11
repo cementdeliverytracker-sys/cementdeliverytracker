@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ===========================
+    // HELPER FUNCTIONS
+    // ===========================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is the owner
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    
+    // ===========================
+    // USER PROFILE IMAGES
+    // ===========================
+    
+    // user_images folder (actual storage path)
+    match /user_images/{filename} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && filename.matches(request.auth.uid + '.*');
+    }
+    
+    // Allow users to read their own profile images (legacy path)
+    match /users/{uid}/profileImage {
+      allow read: if isOwner(uid);
+    }
+    
+    // Allow authenticated users to read all images (access control is in Firestore)
+    match /users/{uid}/{allFiles=**} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(uid);
+    }
+    
+    // ===========================
+    // DISTRIBUTOR IMAGES
+    // ===========================
+    
+    // Allow authenticated users to read distributor images
+    match /distributors/{distributorId}/images/{image} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admin can upload via backend
+    }
+    
+    // ===========================
+    // DEFAULT DENY ALL
+    // ===========================
+    
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

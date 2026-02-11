@@ -81,9 +81,13 @@ service cloud.firestore {
       // User can read their own document
       allow read: if isOwner(userId);
       
-      // Admin can read users in their team (adminId == request.auth.uid)
-      allow read: if isAdmin(request.auth.uid)
-        && resource.data.adminId == request.auth.uid;
+      // Admin can read any user document (they have app-level access control)
+      allow read: if isAdmin(request.auth.uid);
+      
+      // Authenticated users can read public/limited employee info
+      allow read: if isAuthenticated() 
+        && resource.data.userType == 'employee'
+        && !resource.data.keys().hasAny(['email', 'phone', 'adminPassword']);
       
       // === UPDATE ===
       // Superadmin can update any user
@@ -146,6 +150,21 @@ service cloud.firestore {
       
       // Deny all other cases
       allow read, create, update, delete: if false;
+    }
+
+    // ===========================
+    // USER SUBCOLLECTIONS
+    // ===========================
+    match /users/{userId}/{document=**} {
+      // Superadmin can read/write all user subcollections
+      allow read, write: if isSuperAdmin(request.auth.uid);
+      
+      // User can read/write their own subcollections
+      allow read, write: if isOwner(userId);
+      
+      // Admin can read/write subcollections of their employees
+      allow read, write: if isAdmin(request.auth.uid)
+        && (isOwner(userId) || get(/databases/$(database)/documents/users/$(userId)).data.adminId == request.auth.uid);
     }
     
     // ===========================
