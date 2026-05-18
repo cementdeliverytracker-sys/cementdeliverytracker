@@ -5,7 +5,7 @@
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:tep/core/constants/app_constants.dart';
 
 /// Singleton cache manager for employee metadata
 class EmployeeMetadataCacheService {

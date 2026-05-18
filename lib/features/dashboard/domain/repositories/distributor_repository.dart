@@ -1,4 +1,4 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
+import 'package:tep/core/errors/failures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 

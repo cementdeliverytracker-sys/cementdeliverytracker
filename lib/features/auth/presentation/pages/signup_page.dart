@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/utils/app_utils.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cementdeliverytracker/main.dart';
-import 'package:cementdeliverytracker/shared/widgets/user_image_picker.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/utils/app_utils.dart';
+import 'package:tep/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:tep/main.dart';
+import 'package:tep/shared/widgets/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

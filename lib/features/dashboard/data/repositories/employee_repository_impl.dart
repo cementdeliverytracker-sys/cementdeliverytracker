@@ -1,7 +1,7 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/core/network/network_info.dart';
-import 'package:cementdeliverytracker/features/dashboard/data/datasources/employee_remote_data_source.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/repositories/employee_repository.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/core/network/network_info.dart';
+import 'package:tep/features/dashboard/data/datasources/employee_remote_data_source.dart';
+import 'package:tep/features/dashboard/domain/repositories/employee_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 

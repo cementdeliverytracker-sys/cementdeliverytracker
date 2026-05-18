@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:tep/core/constants/app_constants.dart';
 
 /// Remote data source for employee-related operations.
 /// Handles direct Firestore operations for employee management.

@@ -1,5 +1,5 @@
-import 'package:cementdeliverytracker/features/dashboard/data/services/admin_location_cache.dart';
-import 'package:cementdeliverytracker/features/dashboard/data/services/attendance_service.dart';
+import 'package:tep/features/dashboard/data/services/admin_location_cache.dart';
+import 'package:tep/features/dashboard/data/services/attendance_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

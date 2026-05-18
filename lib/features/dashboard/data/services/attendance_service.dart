@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/features/dashboard/data/exceptions/location_exceptions.dart';
-import 'package:cementdeliverytracker/features/dashboard/data/services/admin_location_cache.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/features/dashboard/data/exceptions/location_exceptions.dart';
+import 'package:tep/features/dashboard/data/services/admin_location_cache.dart';
 
 class AttendanceService {
   static const double _maxDistanceMeters = 100;

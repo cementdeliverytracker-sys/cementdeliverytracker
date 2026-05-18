@@ -1,6 +1,6 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/entities/dashboard_entities.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/usecases/dashboard_usecases.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/dashboard/domain/entities/dashboard_entities.dart';
+import 'package:tep/features/dashboard/domain/usecases/dashboard_usecases.dart';
 import 'package:flutter/material.dart';
 
 enum DashboardState { initial, loading, loaded, error }

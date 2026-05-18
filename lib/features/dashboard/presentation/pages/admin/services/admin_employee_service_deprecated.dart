@@ -3,7 +3,7 @@
 // Migrate to:
 // - lib/features/dashboard/domain/usecases/employee_usecases.dart
 
-export 'package:cementdeliverytracker/features/dashboard/data/datasources/employee_remote_data_source.dart';
+export 'package:tep/features/dashboard/data/datasources/employee_remote_data_source.dart';
 
 @Deprecated(
   'Use ApproveEmployeeUseCase, RejectEmployeeUseCase, etc. from domain/usecases/employee_usecases.dart',

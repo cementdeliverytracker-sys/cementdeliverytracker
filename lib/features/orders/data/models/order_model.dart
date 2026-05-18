@@ -1,4 +1,4 @@
-import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart';
+import 'package:tep/features/orders/domain/entities/order.dart';
 
 class OrderModel extends Order {
   const OrderModel({

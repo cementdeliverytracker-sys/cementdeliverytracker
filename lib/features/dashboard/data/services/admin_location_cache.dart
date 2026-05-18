@@ -4,8 +4,8 @@
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/features/dashboard/data/exceptions/location_exceptions.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/features/dashboard/data/exceptions/location_exceptions.dart';
 
 /// Singleton cache manager for admin location data
 class AdminLocationCache {

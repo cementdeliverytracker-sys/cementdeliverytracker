@@ -1,5 +1,5 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/repositories/employee_repository.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/dashboard/domain/repositories/employee_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 

@@ -1,8 +1,8 @@
-import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart';
-import 'package:cementdeliverytracker/features/orders/domain/usecases/create_order.dart';
-import 'package:cementdeliverytracker/features/orders/domain/usecases/delete_order.dart';
-import 'package:cementdeliverytracker/features/orders/domain/usecases/get_orders.dart';
-import 'package:cementdeliverytracker/features/orders/domain/usecases/update_order.dart';
+import 'package:tep/features/orders/domain/entities/order.dart';
+import 'package:tep/features/orders/domain/usecases/create_order.dart';
+import 'package:tep/features/orders/domain/usecases/delete_order.dart';
+import 'package:tep/features/orders/domain/usecases/get_orders.dart';
+import 'package:tep/features/orders/domain/usecases/update_order.dart';
 import 'package:flutter/material.dart';
 
 enum OrdersState { initial, loading, loaded, error }

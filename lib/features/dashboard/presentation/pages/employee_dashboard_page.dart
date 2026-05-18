@@ -1,15 +1,15 @@
-import 'package:cementdeliverytracker/core/theme/app_colors.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/services/employee_metadata_cache_service.dart';
-import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_add_distributor_dialog.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/screens/employee_distributor_list_screen.dart';
+import 'package:tep/core/theme/app_colors.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/services/employee_metadata_cache_service.dart';
+import 'package:tep/core/services/api_usage_monitoring_service.dart';
+import 'package:tep/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:tep/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:tep/features/dashboard/presentation/screens/employee_add_distributor_dialog.dart';
+import 'package:tep/features/dashboard/presentation/screens/employee_dashboard_screen.dart';
+import 'package:tep/features/dashboard/presentation/screens/employee_distributor_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
+import 'package:tep/shared/widgets/settings_screen.dart';
 
 class EmployeeDashboardPage extends StatefulWidget {
   const EmployeeDashboardPage({super.key});

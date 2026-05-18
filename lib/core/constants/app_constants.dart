@@ -1,6 +1,6 @@
 class AppConstants {
   // App Info
-  static const String appName = 'Cement Delivery Tracker';
+  static const String appName = 'TEP';
   static const String appVersion = '1.0.0';
 
   // Firebase Collections

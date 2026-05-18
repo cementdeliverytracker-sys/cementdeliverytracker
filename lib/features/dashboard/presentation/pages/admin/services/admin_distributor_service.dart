@@ -1,4 +1,4 @@
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:tep/core/constants/app_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Service layer for managing distributors in Firestore.

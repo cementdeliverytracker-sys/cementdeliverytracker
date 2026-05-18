@@ -1,8 +1,8 @@
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/theme/app_colors.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/pages/admin_request_page.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/pages/employee_code_entry_page.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/theme/app_colors.dart';
+import 'package:tep/features/auth/presentation/pages/admin_request_page.dart';
+import 'package:tep/features/auth/presentation/pages/employee_code_entry_page.dart';
+import 'package:tep/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

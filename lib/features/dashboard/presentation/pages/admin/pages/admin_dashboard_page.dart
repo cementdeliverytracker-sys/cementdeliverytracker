@@ -1,9 +1,9 @@
-import 'package:cementdeliverytracker/core/theme/app_colors.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/dashboard_screen.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/reports_screen.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/team_screen.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
-import 'package:cementdeliverytracker/shared/widgets/settings_screen.dart';
+import 'package:tep/core/theme/app_colors.dart';
+import 'package:tep/features/dashboard/presentation/pages/admin/pages/dashboard_screen.dart';
+import 'package:tep/features/dashboard/presentation/pages/admin/pages/reports_screen.dart';
+import 'package:tep/features/dashboard/presentation/pages/admin/pages/team_screen.dart';
+import 'package:tep/features/dashboard/presentation/widgets/dashboard_widgets.dart';
+import 'package:tep/shared/widgets/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 /// AdminDashboardPage is the main navigation container for the admin feature.

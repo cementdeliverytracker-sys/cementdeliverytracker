@@ -1,6 +1,6 @@
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/services/admin_distributor_service.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:tep/features/dashboard/presentation/pages/admin/services/admin_distributor_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

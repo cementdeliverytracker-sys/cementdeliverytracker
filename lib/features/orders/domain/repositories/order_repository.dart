@@ -1,5 +1,5 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart'
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/orders/domain/entities/order.dart'
     as entities;
 import 'package:dartz/dartz.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:cementdeliverytracker/core/services/geocoding_cache_service.dart';
-import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
-import 'package:cementdeliverytracker/core/utils/debouncer.dart';
+import 'package:tep/core/services/geocoding_cache_service.dart';
+import 'package:tep/core/services/api_usage_monitoring_service.dart';
+import 'package:tep/core/utils/debouncer.dart';
 
 class LocationPickerResult {
   final double latitude;

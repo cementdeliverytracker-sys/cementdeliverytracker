@@ -1,6 +1,6 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/entities/dashboard_entities.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/repositories/dashboard_repository.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/dashboard/domain/entities/dashboard_entities.dart';
+import 'package:tep/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class GetUserDashboardDataUseCase {

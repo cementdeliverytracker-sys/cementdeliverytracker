@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:cementdeliverytracker/core/services/api_usage_monitoring_service.dart';
+import 'package:tep/core/services/api_usage_monitoring_service.dart';
 import '../models/visit_model.dart';
 
 /// Service for managing visit operations with Firestore and Firestore transactions

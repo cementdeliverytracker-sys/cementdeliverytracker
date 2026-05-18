@@ -1,9 +1,9 @@
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/pages/role_selection_page.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/admin/pages/admin_dashboard_page.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/employee_dashboard_page.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/pages/super_admin_dashboard_page.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:tep/features/auth/presentation/pages/role_selection_page.dart';
+import 'package:tep/features/dashboard/presentation/pages/admin/pages/admin_dashboard_page.dart';
+import 'package:tep/features/dashboard/presentation/pages/employee_dashboard_page.dart';
+import 'package:tep/features/dashboard/presentation/pages/super_admin_dashboard_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

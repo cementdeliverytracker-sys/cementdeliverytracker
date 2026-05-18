@@ -1,4 +1,4 @@
-import 'package:cementdeliverytracker/features/dashboard/data/exceptions/location_exceptions.dart';
+import 'package:tep/features/dashboard/data/exceptions/location_exceptions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // ============================================================================

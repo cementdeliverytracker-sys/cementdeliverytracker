@@ -1,7 +1,7 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
-import 'package:cementdeliverytracker/features/auth/domain/repositories/auth_repository.dart';
-import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/auth/domain/entities/auth_entities.dart';
+import 'package:tep/features/auth/domain/repositories/auth_repository.dart';
+import 'package:tep/features/auth/domain/usecases/change_password_params.dart';
 import 'package:dartz/dartz.dart';
 
 class LoginUseCase {

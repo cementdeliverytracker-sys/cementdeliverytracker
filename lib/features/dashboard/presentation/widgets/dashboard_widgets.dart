@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/theme/app_colors.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/theme/app_colors.dart';
 
 /// Reusable card widget for dashboard items
 class DashboardCard extends StatelessWidget {

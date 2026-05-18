@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
+import 'package:tep/core/constants/app_constants.dart';
 
 /// Service class for admin-specific employee operations in Firestore.
 /// This service handles employee approval, rejection, and retrieval for admin users.

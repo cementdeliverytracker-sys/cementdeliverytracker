@@ -1,6 +1,6 @@
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/usecases/employee_usecases.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/widgets/dashboard_widgets.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/features/dashboard/domain/usecases/employee_usecases.dart';
+import 'package:tep/features/dashboard/presentation/widgets/dashboard_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

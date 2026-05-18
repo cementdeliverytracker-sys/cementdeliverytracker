@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/auth/domain/entities/auth_entities.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/auth/domain/entities/auth_entities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cementdeliverytracker/features/auth/domain/usecases/change_password_params.dart';
+import 'package:tep/features/auth/domain/usecases/change_password_params.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUser> login(LoginParams params);

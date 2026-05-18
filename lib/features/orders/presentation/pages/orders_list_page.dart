@@ -1,11 +1,11 @@
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/theme/app_colors.dart';
-import 'package:cementdeliverytracker/features/auth/presentation/providers/auth_notifier.dart';
-import 'package:cementdeliverytracker/features/dashboard/presentation/providers/dashboard_provider.dart';
-import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart';
-import 'package:cementdeliverytracker/features/orders/presentation/pages/create_order_page.dart';
-import 'package:cementdeliverytracker/features/orders/presentation/pages/order_detail_page.dart';
-import 'package:cementdeliverytracker/features/orders/presentation/providers/orders_provider.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/theme/app_colors.dart';
+import 'package:tep/features/auth/presentation/providers/auth_notifier.dart';
+import 'package:tep/features/dashboard/presentation/providers/dashboard_provider.dart';
+import 'package:tep/features/orders/domain/entities/order.dart';
+import 'package:tep/features/orders/presentation/pages/create_order_page.dart';
+import 'package:tep/features/orders/presentation/pages/order_detail_page.dart';
+import 'package:tep/features/orders/presentation/providers/orders_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

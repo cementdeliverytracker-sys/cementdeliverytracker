@@ -3,7 +3,7 @@
 // Migrate to:
 // - lib/features/dashboard/domain/usecases/distributor_usecases.dart
 
-export 'package:cementdeliverytracker/features/dashboard/data/datasources/distributor_remote_data_source.dart';
+export 'package:tep/features/dashboard/data/datasources/distributor_remote_data_source.dart';
 
 @Deprecated(
   'Use GetDistributorsStreamUseCase, AddDistributorUseCase, etc. from domain/usecases/distributor_usecases.dart',

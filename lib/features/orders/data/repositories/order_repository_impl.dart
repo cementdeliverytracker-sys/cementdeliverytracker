@@ -1,9 +1,9 @@
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/orders/data/datasources/order_remote_data_source.dart';
-import 'package:cementdeliverytracker/features/orders/data/models/order_model.dart';
-import 'package:cementdeliverytracker/features/orders/domain/entities/order.dart'
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/orders/data/datasources/order_remote_data_source.dart';
+import 'package:tep/features/orders/data/models/order_model.dart';
+import 'package:tep/features/orders/domain/entities/order.dart'
     as entities;
-import 'package:cementdeliverytracker/features/orders/domain/repositories/order_repository.dart';
+import 'package:tep/features/orders/domain/repositories/order_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class OrderRepositoryImpl implements OrderRepository {

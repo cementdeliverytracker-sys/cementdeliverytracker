@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:cementdeliverytracker/core/constants/app_constants.dart';
-import 'package:cementdeliverytracker/core/errors/failures.dart';
-import 'package:cementdeliverytracker/features/dashboard/domain/entities/dashboard_entities.dart';
+import 'package:tep/core/constants/app_constants.dart';
+import 'package:tep/core/errors/failures.dart';
+import 'package:tep/features/dashboard/domain/entities/dashboard_entities.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class DashboardRemoteDataSource {
