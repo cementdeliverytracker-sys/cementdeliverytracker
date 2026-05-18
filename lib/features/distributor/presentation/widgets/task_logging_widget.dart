@@ -9,10 +9,10 @@ class TaskLoggingWidget extends StatefulWidget {
   final VoidCallback onTaskAdded;
 
   const TaskLoggingWidget({
-    Key? key,
+    super.key,
     required this.visitId,
     required this.onTaskAdded,
-  }) : super(key: key);
+  });
 
   @override
   State<TaskLoggingWidget> createState() => _TaskLoggingWidgetState();

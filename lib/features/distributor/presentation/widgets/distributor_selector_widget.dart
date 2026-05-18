@@ -10,11 +10,11 @@ class DistributorSelectorWidget extends StatefulWidget {
   final String? adminId;
 
   const DistributorSelectorWidget({
-    Key? key,
+    super.key,
     required this.onSelected,
     required this.onAddNew,
     this.adminId,
-  }) : super(key: key);
+  });
 
   @override
   State<DistributorSelectorWidget> createState() =>

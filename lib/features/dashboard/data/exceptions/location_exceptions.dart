@@ -1,5 +1,6 @@
 /// Custom exceptions for location-based features
 /// Provides user-friendly error messages and specific exception types
+library;
 
 /// Base exception for location-related errors
 abstract class LocationException implements Exception {

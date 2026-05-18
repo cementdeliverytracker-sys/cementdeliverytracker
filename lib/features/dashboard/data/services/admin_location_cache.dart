@@ -1,6 +1,7 @@
 /// Location caching manager with TTL support
 /// Reduces redundant Firestore reads for admin location
 /// Default TTL: 24 hours
+library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';

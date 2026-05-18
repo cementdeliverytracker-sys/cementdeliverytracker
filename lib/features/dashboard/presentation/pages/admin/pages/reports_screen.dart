@@ -20,8 +20,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
   List<VisitTask> _filteredTasks = [];
   bool _isLoading = true;
   String? _error;
-  Map<String, String> _employeeNameCache = {};
-  Map<String, String> _distributorNameCache = {};
+  final Map<String, String> _employeeNameCache = {};
+  final Map<String, String> _distributorNameCache = {};
 
   // Filter state
   DateTimeRange? _selectedDateRange;
@@ -676,7 +676,7 @@ class _FilterPanelState extends State<FilterPanel> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: selectedEmployeeId,
+            initialValue: selectedEmployeeId,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               hintText: 'All Employees',
@@ -713,7 +713,7 @@ class _FilterPanelState extends State<FilterPanel> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: selectedDistributorId,
+            initialValue: selectedDistributorId,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               hintText: 'All Distributors',

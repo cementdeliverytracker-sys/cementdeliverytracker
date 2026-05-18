@@ -1,6 +1,7 @@
 /// API Usage Monitoring Service
 /// Tracks Firestore reads/writes, geocoding calls, and cache performance
 /// Provides insights for cost optimization and performance tuning
+library;
 
 /// Singleton service for tracking API usage and cache performance
 class APIUsageMonitoringService {

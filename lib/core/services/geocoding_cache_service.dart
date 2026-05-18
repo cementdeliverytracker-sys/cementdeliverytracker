@@ -1,6 +1,7 @@
 /// Geocoding cache service with configurable TTL
 /// Reduces redundant reverse geocoding API calls by caching address lookups
 /// Default TTL: 7 days (addresses rarely change for coordinates)
+library;
 
 import 'package:geocoding/geocoding.dart';
 
@@ -101,8 +102,8 @@ class GeocodingCacheService {
       'cacheHits': _cacheHits,
       'cacheMisses': _cacheMisses,
       'apiCalls': _apiCalls,
-      'hitRate': hitRate.toStringAsFixed(2) + '%',
-      'cacheTTL': _cacheTTL.inDays.toString() + ' days',
+      'hitRate': '${hitRate.toStringAsFixed(2)}%',
+      'cacheTTL': '${_cacheTTL.inDays} days',
       'entries': _getEntriesStats(),
     };
   }

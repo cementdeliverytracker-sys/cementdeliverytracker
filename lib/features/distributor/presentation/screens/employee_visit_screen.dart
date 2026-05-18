@@ -17,11 +17,11 @@ class EmployeeVisitScreen extends StatefulWidget {
   final String? adminId;
 
   const EmployeeVisitScreen({
-    Key? key,
+    super.key,
     required this.employeeId,
     this.employeeName,
     this.adminId,
-  }) : super(key: key);
+  });
 
   @override
   State<EmployeeVisitScreen> createState() => _EmployeeVisitScreenState();
@@ -215,7 +215,7 @@ class _EmployeeVisitScreenState extends State<EmployeeVisitScreen>
       final position = await _getCurrentLocation();
 
       // Validate location - Check if employee is within 50 meters of distributor
-      final distanceInMeters = await Geolocator.distanceBetween(
+      final distanceInMeters = Geolocator.distanceBetween(
         position.latitude,
         position.longitude,
         selectedDistributor.latitude,

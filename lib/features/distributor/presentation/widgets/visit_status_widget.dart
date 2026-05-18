@@ -5,7 +5,7 @@ import '../../data/models/visit_model.dart';
 class VisitStatusWidget extends StatelessWidget {
   final Visit? visit;
 
-  const VisitStatusWidget({Key? key, required this.visit}) : super(key: key);
+  const VisitStatusWidget({super.key, required this.visit});
 
   @override
   Widget build(BuildContext context) {

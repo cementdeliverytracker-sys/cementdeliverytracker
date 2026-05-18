@@ -3,6 +3,7 @@
 /// - Map location selection
 /// - Search input
 /// - Location tracking updates
+library;
 
 import 'dart:async';
 import 'dart:ui';

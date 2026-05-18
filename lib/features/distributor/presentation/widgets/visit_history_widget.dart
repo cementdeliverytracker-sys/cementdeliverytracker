@@ -7,8 +7,7 @@ import '../../data/repositories/distributor_repository.dart';
 class VisitHistoryWidget extends StatefulWidget {
   final String employeeId;
 
-  const VisitHistoryWidget({Key? key, required this.employeeId})
-    : super(key: key);
+  const VisitHistoryWidget({super.key, required this.employeeId});
 
   @override
   State<VisitHistoryWidget> createState() => _VisitHistoryWidgetState();
@@ -210,14 +209,12 @@ class _VisitHistoryWidgetState extends State<VisitHistoryWidget> {
           .expand(
             (entry) => [
               _DateHeader(date: entry.key),
-              ...entry.value
-                  .map(
-                    (visit) => _VisitCard(
-                      visit: visit,
-                      onTasksEdited: () => _loadVisits(),
-                    ),
-                  )
-                  .toList(),
+              ...entry.value.map(
+                (visit) => _VisitCard(
+                  visit: visit,
+                  onTasksEdited: () => _loadVisits(),
+                ),
+              ),
               const SizedBox(height: 8),
             ],
           )
@@ -783,7 +780,7 @@ class _EditTasksSheetState extends State<_EditTasksSheet> {
                           children: [
                             Expanded(
                               child: DropdownButtonFormField<TaskType>(
-                                value: task.type,
+                                initialValue: task.type,
                                 decoration: const InputDecoration(
                                   labelText: 'Task Type',
                                   contentPadding: EdgeInsets.symmetric(

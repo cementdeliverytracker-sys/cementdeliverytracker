@@ -2,6 +2,7 @@
 /// Reduces redundant Firestore reads for employee data that changes infrequently
 /// Caches: employee profiles, admin assignments, distributor assignments
 /// Default TTL: 1 hour for employee metadata
+library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cementdeliverytracker/core/constants/app_constants.dart';
